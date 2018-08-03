@@ -1,4 +1,4 @@
-package de.flashheart.rlgserver;
+package de.flashheart.rlgserver.frontend.rest;
 
 public class Greeting {
 

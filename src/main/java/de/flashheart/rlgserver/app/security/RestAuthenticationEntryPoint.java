@@ -1,4 +1,4 @@
-package de.flashheart.rlgserver.security;
+package de.flashheart.rlgserver.app.security;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
