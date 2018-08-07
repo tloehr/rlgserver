@@ -2,10 +2,8 @@ package de.flashheart.rlgserver;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.flashheart.rlgserver.backend.data.entity.Game;
 import de.flashheart.rlgserver.backend.data.pojo.GameEvent;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
-import de.flashheart.rlgserver.backend.data.repositories.GameRepository;
 import de.flashheart.rlgserver.backend.service.GameService;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -16,7 +14,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootApplication
 @EnableConfigurationProperties
@@ -82,7 +79,7 @@ public class Application {
             gameState.setCapturetime(121211212121l);
             gameState.setMaxgametime(892189212l);
             gameState.setGametime(System.currentTimeMillis());
-            gameState.setGamestate(GameState.NON_EXISTENT);
+            gameState.setState("null");
 
             gameState.getGameEvents().add(new GameEvent(new DateTime().getMillis(), "SOMEEVENT", 1212212l, 1212121222111l));
             gameState.getGameEvents().add(new GameEvent(new DateTime().getMillis(), "SOMEEVENT1", 1212212l, 1212121222111l));

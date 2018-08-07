@@ -66,7 +66,7 @@ public class GameService extends CrudService<Game> {
             Game myGame = games.get(0);
             myGame.setGameevent(json);
             myGame.setRemaining(gameState.getRemaining());
-            myGame.setState(gameState.getGamestate());
+            myGame.setState(gameState.getState());
             save(myGame);
         }
     }

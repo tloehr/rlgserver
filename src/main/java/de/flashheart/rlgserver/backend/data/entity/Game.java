@@ -17,14 +17,16 @@ public class Game extends AbstractEntity {
     @NotNull
     LocalDateTime pit; // pit of the last entry
     @NotNull
-    LocalDateTime startofgame;
-    @NotNull
     String bombname;
     @NotNull
     String uuid; // of the machine
     @NotNull
     String gametype;
     @NotNull
+    String state; // the current state of the box.
+    @NotNull
+    LocalDateTime startofgame;
+    LocalDateTime pausingsince;
     LocalDateTime endofgame;
     long remaining;
     @NotNull
@@ -36,28 +38,26 @@ public class Game extends AbstractEntity {
     @NotNull
     @Lob
     String gameevent; // json representation of the last received GameEvent object
-    @NotNull
-    String state;
 
 
     public Game() {
         pit = LocalDateTime.now();
         color = Tools.getHTMLColor(Color.WHITE);
         result = "no results given";
-        state = GameState.NON_EXISTENT;
+        state = "null";
     }
 
     public Game(GameState gameState) {
         this();
         bombname = gameState.getBombname();
         startofgame = LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_started()), TimeZone.getDefault().toZoneId());
-        endofgame = LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_started()), TimeZone.getDefault().toZoneId());
-        startofgame = LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_started()), TimeZone.getDefault().toZoneId());
+        pausingsince = gameState.getTimestamp_game_paused() > -1 ? LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_paused()), TimeZone.getDefault().toZoneId()) : null;
+        endofgame = gameState.getTimestamp_game_ended() > -1 ? LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_ended()), TimeZone.getDefault().toZoneId()) : null;
         remaining = gameState.getRemaining();
         matchid = gameState.getMatchid();
         uuid = gameState.getUuid();
         gametype = gameState.getGametype();
-        state = gameState.getGamestate();
+        state = gameState.getState();
     }
 
     public String getBombname() {
