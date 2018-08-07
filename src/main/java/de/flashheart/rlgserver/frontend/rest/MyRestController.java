@@ -29,12 +29,12 @@ public class MyRestController implements HasLogger {
 
 
     private final GameService gameService;
-    private final ObjectMapper mapper;
+    
 
     @Autowired
     public MyRestController(GameService gameService) {
         this.gameService = gameService;
-        this.mapper = new ObjectMapper();
+//        this.mapper = new ObjectMapper();
     }
 
     @RequestMapping(value = GREETING, method = RequestMethod.GET)
@@ -79,19 +79,14 @@ public class MyRestController implements HasLogger {
     // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.
     @RequestMapping(value = GAMESTATE_CREATE, method = RequestMethod.POST)
     public @ResponseBody
-    GameState createCustomer(@RequestBody GameState gameState) {
+    GameState saveGameState(@RequestBody GameState gameState) {
         getLogger().debug("got: " + gameState);
-
         try {
-            String json = mapper.writeValueAsString(gameState);
-            Game game = new Game(gameState);
-            game.setGameevent(json);
-            getLogger().info("inbound from: " + game.getBombname());
-            gameService.save(game);
+            getLogger().info("inbound from: " + gameState.getBombname() + " " + gameState.getUuid());
+            gameService.update(gameState);
         } catch (JsonProcessingException e) {
             getLogger().warn(e.getMessage(), e);
         }
-
 
         return gameState;
     }

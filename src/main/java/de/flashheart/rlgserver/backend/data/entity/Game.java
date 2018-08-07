@@ -57,6 +57,7 @@ public class Game extends AbstractEntity {
         matchid = gameState.getMatchid();
         uuid = gameState.getUuid();
         gametype = gameState.getGametype();
+        state = gameState.getGamestate();
     }
 
     public String getBombname() {

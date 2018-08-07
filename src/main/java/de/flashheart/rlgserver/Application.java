@@ -1,21 +1,30 @@
 package de.flashheart.rlgserver;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.flashheart.rlgserver.backend.data.entity.Game;
 import de.flashheart.rlgserver.backend.data.pojo.GameEvent;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
+import de.flashheart.rlgserver.backend.data.repositories.GameRepository;
+import de.flashheart.rlgserver.backend.service.GameService;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootApplication
 @EnableConfigurationProperties
 public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
+
+    @Autowired
+    GameService gameService;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -73,6 +82,7 @@ public class Application {
             gameState.setCapturetime(121211212121l);
             gameState.setMaxgametime(892189212l);
             gameState.setGametime(System.currentTimeMillis());
+            gameState.setGamestate(GameState.NON_EXISTENT);
 
             gameState.getGameEvents().add(new GameEvent(new DateTime().getMillis(), "SOMEEVENT", 1212212l, 1212121222111l));
             gameState.getGameEvents().add(new GameEvent(new DateTime().getMillis(), "SOMEEVENT1", 1212212l, 1212121222111l));
@@ -85,7 +95,6 @@ public class Application {
 
             ObjectMapper mapper = new ObjectMapper();
 
-
             String json = mapper.writeValueAsString(gameState);
 
             log.info(json);
@@ -94,7 +103,30 @@ public class Application {
 
             log.info(gameState1.toString());
 
+            checkTransaction(gameState);
 
         };
+
+    }
+
+
+    void checkTransaction(GameState gameState) {
+        try {
+            gameService.update(gameState);
+
+            gameState.setTimestamp_game_started(new DateTime().getMillis());
+            gameService.update(gameState);
+
+            gameState.setTimestamp_game_started(new DateTime().getMillis());
+            gameService.update(gameState);
+
+            gameState.setTimestamp_game_started(new DateTime().getMillis());
+            gameService.update(gameState);
+
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
     }
 }
