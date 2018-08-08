@@ -12,8 +12,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Service
 public class GameService extends CrudService<Game> {
@@ -67,7 +70,19 @@ public class GameService extends CrudService<Game> {
             myGame.setGameevent(json);
             myGame.setRemaining(gameState.getRemaining());
             myGame.setState(gameState.getState());
+            myGame.setEndofgame(gameState.getTimestamp_game_ended() > -1 ? LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_ended()), TimeZone.getDefault().toZoneId()) : null);
+            myGame.setPausingsince(gameState.getTimestamp_game_paused() > -1 ? LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_paused()), TimeZone.getDefault().toZoneId()) : null);
+            myGame.setResult(getResult(gameState));
             save(myGame);
         }
+    }
+
+    /**
+     * produces some result string according to the gamestate and the gametype
+     * @param gameState
+     * @return
+     */
+    private static String getResult(GameState gameState){
+        return "noresultsyet";
     }
 }

@@ -43,7 +43,7 @@ public class Game extends AbstractEntity {
     public Game() {
         pit = LocalDateTime.now();
         color = Tools.getHTMLColor(Color.WHITE);
-        result = "no results given";
+        result = "noresultsyet";
         state = "null";
     }
 
@@ -102,6 +102,14 @@ public class Game extends AbstractEntity {
 
     public String getUuid() {
         return uuid;
+    }
+
+    public LocalDateTime getPausingsince() {
+        return pausingsince;
+    }
+
+    public void setPausingsince(LocalDateTime pausingsince) {
+        this.pausingsince = pausingsince;
     }
 
     public void setUuid(String uuid) {
