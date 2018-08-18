@@ -29,6 +29,23 @@ public class GameState {
         gameEvents = new ArrayList<>();
     }
 
+    public GameState(String bombname, String gametype, String uuid, long matchid) {
+        this();
+        this.state = "pregame";
+        this.bombfused = false;
+        this.bombname = bombname;
+        this.gametype = gametype;
+        this.uuid = uuid;
+        this.matchid = matchid;
+        this.capturetime = 0l;
+        this.maxgametime = 0l;
+        this.remaining = 0l;
+        this.bombfused = false;
+        this.timestamp_game_started = -1;
+        this.timestamp_game_paused = -1;
+        this.timestamp_game_ended = -1;
+    }
+
     public String getBombname() {
         return bombname;
     }

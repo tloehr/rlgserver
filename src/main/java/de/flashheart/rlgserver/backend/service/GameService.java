@@ -47,6 +47,11 @@ public class GameService extends CrudService<Game> {
         return gameRepository.findAll(pageable);
     }
 
+
+       public List<Game> findGamesBetween(LocalDateTime from, LocalDateTime to) {
+           return gameRepository.findByStartofgameBetween(from, to);
+       }
+
     /**
      * Aktualisiert ein Game Objekt in der Datenbank. Dabei wird anhand der UUID und der matchid
      * die Identität des Objektes festgestellt. Also eine bestimmte Box in einem bestimmten Match hat immer
@@ -63,11 +68,11 @@ public class GameService extends CrudService<Game> {
         String json = mapper.writeValueAsString(gameState);
         if (games.isEmpty()) {
             Game game = new Game(gameState);
-            game.setGameevent(json);
+            game.setJson(json);
             save(game);
         } else {
             Game myGame = games.get(0);
-            myGame.setGameevent(json);
+            myGame.setJson(json);
             myGame.setRemaining(gameState.getRemaining());
             myGame.setState(gameState.getState());
             myGame.setEndofgame(gameState.getTimestamp_game_ended() > -1 ? LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_ended()), TimeZone.getDefault().toZoneId()) : null);

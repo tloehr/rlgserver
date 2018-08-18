@@ -3,12 +3,17 @@ package de.flashheart.rlgserver.frontend.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.flashheart.rlgserver.app.misc.HasLogger;
-import de.flashheart.rlgserver.backend.data.entity.Game;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
 import de.flashheart.rlgserver.backend.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
@@ -19,6 +24,8 @@ public class MyRestController implements HasLogger {
 
     public static final String GREETING = "/greeting";
     public static final String GAMESTATE_CREATE = "/rest/gamestate/create";
+    public static final String GAMESTATE_GET = "/rest/gamestate/get";
+    public static final String GAMESTATE_LIST = "/rest/gamestate/list";
 
 
     public static final String DUMMY_cust = "/rest/cust/dummy";
@@ -29,7 +36,7 @@ public class MyRestController implements HasLogger {
 
 
     private final GameService gameService;
-    
+
 
     @Autowired
     public MyRestController(GameService gameService) {
@@ -90,6 +97,27 @@ public class MyRestController implements HasLogger {
 
         return gameState;
     }
+
+    // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.
+    @RequestMapping(value = GAMESTATE_LIST, method = RequestMethod.GET)
+    public @ResponseBody
+    List<GameState> getGameStates(@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> from, @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> to) {
+        ArrayList<GameState> result = new ArrayList<>();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        gameService.findGamesBetween(from.orElse(LocalDateTime.of(1970,1,1,0,0)), to.orElse(LocalDateTime.of(2500,12,31,23,59))).forEach(game -> {
+            try {
+                result.add(mapper.readValue(game.getJson(), GameState.class));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return result;
+    }
+
+
 //
 //    @RequestMapping(value = DELETE_cust, method = RequestMethod.DELETE)
 //    public @ResponseBody

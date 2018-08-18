@@ -7,10 +7,14 @@ import org.springframework.data.jpa.repository.Lock;
 
 import javax.persistence.LockModeType;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
 public interface GameRepository extends JpaRepository<Game, Long> {
     @Lock(LockModeType.OPTIMISTIC)
     List<Game> findByUuidAndMatchid(@NotNull String uuid, @NotNull long matchid);
+
+    List<Game> findByStartofgameBetween(@NotNull LocalDateTime from, @NotNull LocalDateTime to);
+
 }

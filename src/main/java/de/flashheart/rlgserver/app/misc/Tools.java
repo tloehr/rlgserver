@@ -1,6 +1,8 @@
 package de.flashheart.rlgserver.app.misc;
 
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class Tools {
     public static Color gold7 = new Color(0xff, 0xaa, 0x00);
@@ -79,5 +81,9 @@ public class Tools {
             }
         }
         return color;
+    }
+
+    public static long toLocalMillis(LocalDateTime ldt) {
+        return ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 }

@@ -37,7 +37,7 @@ public class Game extends AbstractEntity {
     long matchid; // of the match
     @NotNull
     @Lob
-    String gameevent; // json representation of the last received GameEvent object
+    String json;
 
 
     public Game() {
@@ -148,12 +148,12 @@ public class Game extends AbstractEntity {
         this.matchid = matchid;
     }
 
-    public String getGameevent() {
-        return gameevent;
+    public String getJson() {
+        return json;
     }
 
-    public void setGameevent(String gameevent) {
-        this.gameevent = gameevent;
+    public void setJson(String json) {
+        this.json = json;
     }
 
     public String getState() {
@@ -177,7 +177,7 @@ public class Game extends AbstractEntity {
                 ", gametype='" + gametype + '\'' +
                 ", color='" + color + '\'' +
                 ", matchid=" + matchid +
-                ", gameevent='" + gameevent + '\'' +
+                ", json='" + json + '\'' +
                 ", state=" + state +
                 "} " + super.toString();
     }
