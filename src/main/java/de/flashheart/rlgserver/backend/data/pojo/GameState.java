@@ -1,5 +1,7 @@
 package de.flashheart.rlgserver.backend.data.pojo;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +26,7 @@ public class GameState {
     private long maxgametime;
     private long gametime;
     private List<GameEvent> gameEvents;
+    private String zoneid; // for timezone handling
 
     public GameState() {
         gameEvents = new ArrayList<>();
@@ -44,6 +47,8 @@ public class GameState {
         this.timestamp_game_started = -1;
         this.timestamp_game_paused = -1;
         this.timestamp_game_ended = -1;
+        this.timestamp = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        this.zoneid = ZoneId.systemDefault().getId();
     }
 
     public String getBombname() {
@@ -166,6 +171,14 @@ public class GameState {
         this.state = state;
     }
 
+    public String getZoneid() {
+        return zoneid;
+    }
+
+    public void setZoneid(String zoneid) {
+        this.zoneid = zoneid;
+    }
+
     @Override
     public String toString() {
         return "GameState{" +
@@ -184,6 +197,7 @@ public class GameState {
                 ", maxgametime=" + maxgametime +
                 ", gametime=" + gametime +
                 ", gameEvents=" + gameEvents +
+                ", zoneid='" + zoneid + '\'' +
                 '}';
     }
 }

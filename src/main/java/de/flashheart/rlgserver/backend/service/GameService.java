@@ -47,6 +47,10 @@ public class GameService extends CrudService<Game> {
         return gameRepository.findAll(pageable);
     }
 
+    public Optional<Game> findById(long id){
+        return gameRepository.findById(id);
+    }
+
 
        public List<Game> findGamesBetween(LocalDateTime from, LocalDateTime to) {
            return gameRepository.findByStartofgameBetween(from, to);

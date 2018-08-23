@@ -7,9 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import java.awt.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.TimeZone;
+import java.time.ZoneId;
 
 @Entity
 public class Game extends AbstractEntity {
@@ -36,6 +35,8 @@ public class Game extends AbstractEntity {
     @NotNull
     long matchid; // of the match
     @NotNull
+    private String zoneid; // for timezone handling
+    @NotNull
     @Lob
     String json;
 
@@ -45,19 +46,22 @@ public class Game extends AbstractEntity {
         color = Tools.getHTMLColor(Color.WHITE);
         result = "noresultsyet";
         state = "null";
+        this.zoneid = ZoneId.systemDefault().getId();
     }
 
     public Game(GameState gameState) {
         this();
         bombname = gameState.getBombname();
-        startofgame = LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_started()), TimeZone.getDefault().toZoneId());
-        pausingsince = gameState.getTimestamp_game_paused() > -1 ? LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_paused()), TimeZone.getDefault().toZoneId()) : null;
-        endofgame = gameState.getTimestamp_game_ended() > -1 ? LocalDateTime.ofInstant(Instant.ofEpochMilli(gameState.getTimestamp_game_ended()), TimeZone.getDefault().toZoneId()) : null;
         remaining = gameState.getRemaining();
         matchid = gameState.getMatchid();
         uuid = gameState.getUuid();
         gametype = gameState.getGametype();
         state = gameState.getState();
+        zoneid = gameState.getZoneid();
+        pit = Tools.toLocalDateTime(gameState.getTimestamp(), zoneid);
+        startofgame = Tools.toLocalDateTime(gameState.getTimestamp_game_started(), zoneid);
+        pausingsince = gameState.getTimestamp_game_paused() > -1 ? Tools.toLocalDateTime(gameState.getTimestamp_game_paused(), zoneid) : null;
+        endofgame = gameState.getTimestamp_game_ended() > -1 ? Tools.toLocalDateTime(gameState.getTimestamp_game_ended(), zoneid) : null;
     }
 
     public String getBombname() {

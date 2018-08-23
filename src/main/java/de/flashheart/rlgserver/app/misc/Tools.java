@@ -1,6 +1,7 @@
 package de.flashheart.rlgserver.app.misc;
 
 import java.awt.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -84,6 +85,11 @@ public class Tools {
     }
 
     public static long toLocalMillis(LocalDateTime ldt) {
-        return ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-    }
+           return ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+       }
+
+       public static LocalDateTime toLocalDateTime(long millis, String zoneid) {
+           return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.of(zoneid));
+       }
+
 }

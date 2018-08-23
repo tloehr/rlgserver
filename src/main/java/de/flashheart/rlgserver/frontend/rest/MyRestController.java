@@ -3,6 +3,7 @@ package de.flashheart.rlgserver.frontend.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.flashheart.rlgserver.app.misc.HasLogger;
+import de.flashheart.rlgserver.backend.data.entity.Game;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
 import de.flashheart.rlgserver.backend.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class MyRestController implements HasLogger {
 
 
     private final GameService gameService;
-
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     public MyRestController(GameService gameService) {
@@ -104,9 +105,7 @@ public class MyRestController implements HasLogger {
     List<GameState> getGameStates(@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> from, @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> to) {
         ArrayList<GameState> result = new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
-
-        gameService.findGamesBetween(from.orElse(LocalDateTime.of(1970,1,1,0,0)), to.orElse(LocalDateTime.of(2500,12,31,23,59))).forEach(game -> {
+        gameService.findGamesBetween(from.orElse(LocalDateTime.of(1970, 1, 1, 0, 0)), to.orElse(LocalDateTime.of(2500, 12, 31, 23, 59))).forEach(game -> {
             try {
                 result.add(mapper.readValue(game.getJson(), GameState.class));
             } catch (IOException e) {
@@ -117,6 +116,21 @@ public class MyRestController implements HasLogger {
         return result;
     }
 
+    @RequestMapping(value = GAMESTATE_GET, method = RequestMethod.GET)
+    public @ResponseBody
+    GameState getCustomer(@RequestParam("id") long id) {
+        getLogger().debug("GET the gamestate with id: " + id);
+        Optional<Game> optionalGame = gameService.findById(id);
+        GameState gameState = null;
+        if (optionalGame.isPresent()) {
+            try {
+                gameState = mapper.readValue(optionalGame.get().getJson(), GameState.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return gameState;
+    }
 
 //
 //    @RequestMapping(value = DELETE_cust, method = RequestMethod.DELETE)
