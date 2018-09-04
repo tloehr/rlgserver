@@ -1,4 +1,4 @@
-package de.flashheart.rlgserver;
+package de.flashheart.rlgserver.app.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

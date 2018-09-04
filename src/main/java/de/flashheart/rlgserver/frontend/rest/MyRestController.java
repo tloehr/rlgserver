@@ -3,9 +3,9 @@ package de.flashheart.rlgserver.frontend.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.flashheart.rlgserver.app.misc.HasLogger;
-import de.flashheart.rlgserver.backend.data.entity.Game;
+import de.flashheart.rlgserver.backend.data.entity.Match;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
-import de.flashheart.rlgserver.backend.service.GameService;
+import de.flashheart.rlgserver.backend.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -36,11 +36,11 @@ public class MyRestController implements HasLogger {
     public static final String DELETE_cust = "/rest/cust/delete/{id}";
 
 
-    private final GameService gameService;
+    private final MatchService gameService;
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
-    public MyRestController(GameService gameService) {
+    public MyRestController(MatchService gameService) {
         this.gameService = gameService;
 //        this.mapper = new ObjectMapper();
     }
@@ -105,9 +105,9 @@ public class MyRestController implements HasLogger {
     List<GameState> getGameStates(@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> from, @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> to) {
         ArrayList<GameState> result = new ArrayList<>();
 
-        gameService.findGamesBetween(from.orElse(LocalDateTime.of(1970, 1, 1, 0, 0)), to.orElse(LocalDateTime.of(2500, 12, 31, 23, 59))).forEach(game -> {
+        gameService.findGamesBetween(from.orElse(LocalDateTime.of(1970, 1, 1, 0, 0)), to.orElse(LocalDateTime.of(2500, 12, 31, 23, 59))).forEach(match -> {
             try {
-                result.add(mapper.readValue(game.getJson(), GameState.class));
+                result.add(mapper.readValue(match.getJson(), GameState.class));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -120,7 +120,7 @@ public class MyRestController implements HasLogger {
     public @ResponseBody
     GameState getCustomer(@RequestParam("id") long id) {
         getLogger().debug("GET the gamestate with id: " + id);
-        Optional<Game> optionalGame = gameService.findById(id);
+        Optional<Match> optionalGame = gameService.findById(id);
         GameState gameState = null;
         if (optionalGame.isPresent()) {
             try {

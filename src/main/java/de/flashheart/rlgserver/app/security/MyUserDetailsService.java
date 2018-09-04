@@ -1,29 +1,39 @@
 package de.flashheart.rlgserver.app.security;
 
+import de.flashheart.rlgserver.backend.data.entity.DBUser;
+import de.flashheart.rlgserver.backend.data.repositories.DBUserRepository;
+import de.flashheart.rlgserver.backend.service.DBUserService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
+    private final DBUserService dbUserService;
+    private final DBUserRepository dbUserRepository;
 
-//	private final UserService userService;
+    public MyUserDetailsService(DBUserService dbUserService, DBUserRepository dbUserRepository) {
+        this.dbUserService = dbUserService;
+        this.dbUserRepository = dbUserRepository;
+    }
 
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-		if (!username.equalsIgnoreCase("Torsten")) {
-			throw new UsernameNotFoundException("No user present with username: " + username);
-		} else {
-			return new User("Torsten",new BCryptPasswordEncoder().encode("test1234"),Collections.singletonList(new SimpleGrantedAuthority("USER")));
+        Optional<DBUser> dbUser = dbUserRepository.findByUsername(username);
 
-		}
-	}
+        if (!dbUser.isPresent()) throw new UsernameNotFoundException("No user present with username: " + username);
+
+
+        return new User(username, dbUser.get().getPassword(), Collections.singletonList(new SimpleGrantedAuthority(dbUser.get().getRole())));
+
+
+    }
 }

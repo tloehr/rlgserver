@@ -17,7 +17,6 @@ public class DBUser extends AbstractEntity implements UserDetails {
 
     @NotNull
     @Size(min = 1, max = 255)
-    @Column(unique = true)
     private String email;
 
     @NotNull
@@ -26,27 +25,28 @@ public class DBUser extends AbstractEntity implements UserDetails {
 
     @NotNull
     @Size(min = 1, max = 255)
-    private String name;
+    @Column(unique = true)
+    private String username;
 
     @NotNull
     @Size(min = 1, max = 255)
     private String role;
 
-    private boolean locked = false;
+//    private boolean locked = false;
 
     public DBUser() {
         // An empty constructor is needed for all beans
     }
 
-    public DBUser(String email, String name, String password, String role) {
+    public DBUser(String email, String username, String password, String role) {
         // Sonst wird hier schon eine NPE geworfen.
         Objects.requireNonNull(email);
-        Objects.requireNonNull(name);
+        Objects.requireNonNull(username);
         Objects.requireNonNull(password);
         Objects.requireNonNull(role);
 
         this.email = email;
-        this.name = name;
+        this.username = username;
         this.password = password;
         this.role = role;
     }
@@ -59,12 +59,9 @@ public class DBUser extends AbstractEntity implements UserDetails {
         this.password = password;
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getRole() {
@@ -86,7 +83,7 @@ public class DBUser extends AbstractEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
@@ -94,14 +91,6 @@ public class DBUser extends AbstractEntity implements UserDetails {
         ArrayList<GrantedAuthority> list = new ArrayList<>();
         list.add((GrantedAuthority) () -> role);
         return list;
-    }
-
-    public boolean isLocked() {
-        return locked;
-    }
-
-    public void setLocked(boolean locked) {
-        this.locked = locked;
     }
 
     @Override

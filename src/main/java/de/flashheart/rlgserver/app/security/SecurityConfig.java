@@ -27,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private static String REALM = "MY_TEST_REALM";
+    private static String REALM = "MY_REALM";
     private final PasswordEncoder passwordEncoder;
     private final MyUserDetailsService userDetailsService;
 

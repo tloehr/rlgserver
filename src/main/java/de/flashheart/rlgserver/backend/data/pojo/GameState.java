@@ -27,29 +27,31 @@ public class GameState {
     private long gametime;
     private List<GameEvent> gameEvents;
     private String zoneid; // for timezone handling
+    private String color;
 
     public GameState() {
         gameEvents = new ArrayList<>();
     }
 
-    public GameState(String bombname, String gametype, String uuid, long matchid) {
-        this();
-        this.state = "pregame";
-        this.bombfused = false;
-        this.bombname = bombname;
-        this.gametype = gametype;
-        this.uuid = uuid;
-        this.matchid = matchid;
-        this.capturetime = 0l;
-        this.maxgametime = 0l;
-        this.remaining = 0l;
-        this.bombfused = false;
-        this.timestamp_game_started = -1;
-        this.timestamp_game_paused = -1;
-        this.timestamp_game_ended = -1;
-        this.timestamp = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        this.zoneid = ZoneId.systemDefault().getId();
-    }
+//    public GameState(String bombname, String gametype, String uuid, long matchid) {
+//        this();
+//        this.state = "pregame";
+//        this.bombfused = false;
+//        this.bombname = bombname;
+//        this.gametype = gametype;
+//        this.uuid = uuid;
+//        this.matchid = matchid;
+//        this.capturetime = 0l;
+//        this.maxgametime = 0l;
+//        this.remaining = 0l;
+//        this.bombfused = false;
+//        this.timestamp_game_started = -1;
+//        this.timestamp_game_paused = -1;
+//        this.timestamp_game_ended = -1;
+//        this.timestamp = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+//        this.zoneid = ZoneId.systemDefault().getId();
+//        this.color = "white";
+//    }
 
     public String getBombname() {
         return bombname;
@@ -198,6 +200,15 @@ public class GameState {
                 ", gametime=" + gametime +
                 ", gameEvents=" + gameEvents +
                 ", zoneid='" + zoneid + '\'' +
+                ", color='" + color + '\'' +
                 '}';
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 }
