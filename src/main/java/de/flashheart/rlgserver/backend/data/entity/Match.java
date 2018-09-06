@@ -1,5 +1,7 @@
 package de.flashheart.rlgserver.backend.data.entity;
 
+import de.flashheart.rlgserver.backend.service.MatchService;
+
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -19,14 +21,16 @@ public class Match extends AbstractEntity {
     @NotNull
     String gametype;
     @NotNull
-    String state; // the current state of the box.
+    String state; // the current state of the box
+    @NotNull
+    String matchrecord; // the state of the match record
+    @NotNull
+    String result; // short summary of the game results
     @NotNull
     LocalDateTime startofgame;
     LocalDateTime pausingsince;
     LocalDateTime endofgame;
     long remaining;
-    @NotNull
-    String result; // short summary of the result
     @NotNull
     String color; // the bgcolor to show for the match
     @NotNull
@@ -35,8 +39,6 @@ public class Match extends AbstractEntity {
     long maxgametime; // longest possible matchtime. used to identify broken entries.
     @NotNull
     private String zoneid; // for timezone handling
-    @NotNull
-    int quality; // the quality of this match. whether it is running, finished or broken.
     @NotNull
     @Lob
     String json;
@@ -55,6 +57,7 @@ public class Match extends AbstractEntity {
         this.endofgame = null;
         this.pausingsince = null;
         this.startofgame = startofgame;
+        this.result = MatchService.RESULT_GAME_RUNNING;
     }
 
 
@@ -178,27 +181,28 @@ public class Match extends AbstractEntity {
         this.zoneid = zoneid;
     }
 
-    public int getQuality() {
-        return quality;
+    public String getMatchrecord() {
+        return matchrecord;
     }
 
-    public void setQuality(int quality) {
-        this.quality = quality;
+    public void setMatchrecord(String matchrecord) {
+        this.matchrecord = matchrecord;
     }
 
     @Override
     public String toString() {
-        return "Game{" +
+        return "Match{" +
                 "pit=" + pit +
                 ", bombname='" + bombname + '\'' +
                 ", uuid='" + uuid + '\'' +
                 ", gametype='" + gametype + '\'' +
                 ", state='" + state + '\'' +
+                ", matchrecord='" + matchrecord + '\'' +
+                ", result='" + result + '\'' +
                 ", startofgame=" + startofgame +
                 ", pausingsince=" + pausingsince +
                 ", endofgame=" + endofgame +
                 ", remaining=" + remaining +
-                ", result='" + result + '\'' +
                 ", color='" + color + '\'' +
                 ", matchid=" + matchid +
                 ", maxgametime=" + maxgametime +

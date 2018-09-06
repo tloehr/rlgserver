@@ -4,6 +4,7 @@ package de.flashheart.rlgserver.backend.data.repositories;
 import de.flashheart.rlgserver.backend.data.entity.Match;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.LockModeType;
 import javax.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
 
     @Lock(LockModeType.OPTIMISTIC)
     List<Match> findByEndofgame(LocalDateTime localDateTime);
-    
-    List<Match> findByQualityEquals(int quality);
 
+
+    List<Match> findByMatchrecordEquals(String matchrecord);
 }

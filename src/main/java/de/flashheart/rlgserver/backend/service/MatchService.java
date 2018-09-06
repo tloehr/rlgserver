@@ -16,25 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class MatchService extends CrudService<Match> implements HasLogger {
 
+    public static final String RESULT_GAME_RUNNING = "still_running";
+    public static final String RESULT_GAME_OVER = "game_over";
+    public static final String RESULT_GAME_ABORTED = "abort";
+    public static final String RESULT_GAME_FIXED = "fixed";
 
     private static final long IDLE_MINUTES_UNTIL_CLEANUP = 10;
     private final MatchRepository matchRepository;
     private final ObjectMapper mapper;
-
-    public static final int QUALITY_RUNNING = 0;
-    public static final int QUALITY_FINISHED = 1;
-    public static final int QUALITY_FIXED = 2;
-
-    public static final String RESULT_STILL_RUNNING = "result_still_running";
-    public static final String RESULT_ATTACKERS_WON = "result_attackers_won";
-    public static final String RESULT_DEFENDERS_WON = "result_defenders_won";
-    public static final String RESULT_GAME_ABORTED = "result_abort";
 
     @Autowired
     public MatchService(MatchRepository matchRepository) {
@@ -68,8 +64,8 @@ public class MatchService extends CrudService<Match> implements HasLogger {
     }
 
     public List<Match> findRunningMatches() {
-            return matchRepository.findByQualityEquals(QUALITY_RUNNING);
-        }
+        return matchRepository.findByMatchrecordEquals(RESULT_GAME_RUNNING);
+    }
 
     /**
      * Aktualisiert ein Game Objekt in der Datenbank. Dabei wird anhand der UUID und der matchid
@@ -96,14 +92,22 @@ public class MatchService extends CrudService<Match> implements HasLogger {
         match.setPit(Tools.toLocalDateTime(gameState.getTimestamp(), gameState.getZoneid()));
         match.setJson(json);
         match.setRemaining(gameState.getRemaining());
-        match.setState(gameState.getState());
-        match.setResult(getResult(gameState)); //todo: da fehlt noch was
+
         match.setPausingsince(gameState.getTimestamp_game_paused() > -1 ? Tools.toLocalDateTime(gameState.getTimestamp_game_paused(), gameState.getZoneid()) : null);
         match.setEndofgame(gameState.getTimestamp_game_ended() > -1 ? Tools.toLocalDateTime(gameState.getTimestamp_game_ended(), gameState.getZoneid()) : null);
 
         match.setColor(gameState.getColor());
 
-        if (matches.isEmpty()) match.setQuality(match.getEndofgame() != null ? QUALITY_FINISHED : QUALITY_RUNNING);
+        match.setMatchrecord(RESULT_GAME_RUNNING);
+        match.setResult(RESULT_GAME_RUNNING);
+        match.setState(gameState.getState());
+        if (match.getEndofgame() != null) {
+            match.setMatchrecord(RESULT_GAME_OVER);
+            if (gameState.getState().equals(GameState.EVENT_GAME_ABORTED)) match.setMatchrecord(RESULT_GAME_ABORTED);
+            if (Arrays.asList(GameState.GAME_OVER_STATES).contains(gameState.getState())) {
+                match.setResult(gameState.getState());
+            }
+        }
 
         save(match);
     }
@@ -116,25 +120,17 @@ public class MatchService extends CrudService<Match> implements HasLogger {
     public void fixBrokenMatches() {
         final List<Match> listRunningMatches = matchRepository.findByEndofgame(null);
         if (listRunningMatches.isEmpty()) getLogger().info("nothing to fix");
-        
+
         listRunningMatches.forEach(match -> {
             if (match.getPit().plusMinutes(IDLE_MINUTES_UNTIL_CLEANUP).isAfter(LocalDateTime.now())) {
                 LocalDateTime endOfGame = match.getStartofgame().plus(match.getMaxgametime(), ChronoUnit.MILLIS);
                 match.setEndofgame(endOfGame);
-                match.setQuality(QUALITY_FIXED);
+                match.setMatchrecord(RESULT_GAME_FIXED);
                 getLogger().info("fixing uuid/match: " + match.getUuid() + "/" + match.getMatchid());
                 matchRepository.save(match);
             }
         });
     }
 
-    /**
-     * produces some result string according to the gamestate and the gametype
-     *
-     * @param gameState
-     * @return
-     */
-    private static String getResult(GameState gameState) {
-        return "noresultsyet";
-    }
+
 }

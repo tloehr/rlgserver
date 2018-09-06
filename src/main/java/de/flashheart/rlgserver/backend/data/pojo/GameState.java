@@ -3,6 +3,7 @@ package de.flashheart.rlgserver.backend.data.pojo;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class GameState {
@@ -10,6 +11,27 @@ public class GameState {
     // for gametype
     public static final String TYPE_FARCRY = "farcry";
     public static final String TYPE_CENTERFLAG = "centerflag";
+
+
+    public static final String EVENT_PREPARATION = "event_pregame";
+    public static final String EVENT_PAUSING = "event_pausing";
+    public static final String EVENT_STILL_RUNNING = "event_still_running";
+    public static final String EVENT_ATTACKERS_WON = "event_attackers_won";
+    public static final String EVENT_DEFENDERS_WON = "event_defenders_won";
+    public static final String EVENT_MULTI_WINNERS = "event_multiple_winners";
+    public static final String EVENT_RED_TEAM_WON = "event_red_won";
+    public static final String EVENT_BLUE_TEAM_WON = "event_blue_won";
+    public static final String EVENT_YELLOW_TEAM_WON = "event_yellow_won";
+    public static final String EVENT_GREEN_TEAM_WON = "event_green_won";
+    public static final String EVENT_GAME_ABORTED = "event_abort";
+    public static final String EVENT_FUSED = "event_fused";
+    public static final String EVENT_DEFUSED = "event_defused";
+    public static final String EVENT_RED_ACTIVE = "event_red_active";
+    public static final String EVENT_BLUE_ACTIVE = "event_blue_active";
+    public static final String EVENT_YELLOW_ACTIVE = "event_yellow_active";
+    public static final String EVENT_GREEN_ACTIVE = "event_green_active";
+
+    public static final String[] GAME_OVER_STATES = new String[]{EVENT_ATTACKERS_WON, EVENT_BLUE_TEAM_WON, EVENT_DEFENDERS_WON, EVENT_GAME_ABORTED, EVENT_GREEN_TEAM_WON, EVENT_MULTI_WINNERS, EVENT_RED_TEAM_WON, EVENT_GREEN_TEAM_WON, EVENT_YELLOW_TEAM_WON};
 
     private String bombname;
     private String gametype;
@@ -33,25 +55,25 @@ public class GameState {
         gameEvents = new ArrayList<>();
     }
 
-//    public GameState(String bombname, String gametype, String uuid, long matchid) {
-//        this();
-//        this.state = "pregame";
-//        this.bombfused = false;
-//        this.bombname = bombname;
-//        this.gametype = gametype;
-//        this.uuid = uuid;
-//        this.matchid = matchid;
-//        this.capturetime = 0l;
-//        this.maxgametime = 0l;
-//        this.remaining = 0l;
-//        this.bombfused = false;
-//        this.timestamp_game_started = -1;
-//        this.timestamp_game_paused = -1;
-//        this.timestamp_game_ended = -1;
-//        this.timestamp = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-//        this.zoneid = ZoneId.systemDefault().getId();
-//        this.color = "white";
-//    }
+    public GameState(String bombname, String gametype, String uuid, long matchid) {
+        this();
+        this.state = EVENT_PREPARATION;
+        this.bombfused = false;
+        this.bombname = bombname;
+        this.gametype = gametype;
+        this.uuid = uuid;
+        this.matchid = matchid;
+        this.capturetime = 0l;
+        this.maxgametime = 0l;
+        this.remaining = 0l;
+        this.bombfused = false;
+        this.timestamp_game_started = -1;
+        this.timestamp_game_paused = -1;
+        this.timestamp_game_ended = -1;
+        this.timestamp = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        this.zoneid = ZoneId.systemDefault().getId();
+        this.color = "white";
+    }
 
     public String getBombname() {
         return bombname;
@@ -210,5 +232,31 @@ public class GameState {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public static HashMap<String, String> getStateColors() {
+        HashMap stateColors = new HashMap();
+        stateColors.put(GameEvent.FUSED, "red");
+        stateColors.put(GameEvent.DEFUSED, "green");
+        stateColors.put(GameEvent.PREGAME, "blue");
+        stateColors.put(GameEvent.PAUSING, "blue");
+        stateColors.put(GameEvent.EXPLODED, "red");
+        stateColors.put(GameEvent.DEFENDED, "green");
+        stateColors.put(GameEvent.START_GAME, "white");
+        stateColors.put(GameEvent.GAME_ABORTED, "white");
+        return stateColors;
+    }
+
+    public static HashMap<String, String> getEvent2State() {
+        HashMap stateDisplayText = new HashMap();
+        stateDisplayText.put(GameEvent.FUSED, EVENT_FUSED);
+        stateDisplayText.put(GameEvent.DEFUSED, EVENT_DEFUSED);
+        stateDisplayText.put(GameEvent.PREGAME, EVENT_PREPARATION);
+        stateDisplayText.put(GameEvent.PAUSING, EVENT_PAUSING);
+        stateDisplayText.put(GameEvent.EXPLODED, EVENT_ATTACKERS_WON);
+        stateDisplayText.put(GameEvent.DEFENDED, EVENT_DEFENDERS_WON);
+        stateDisplayText.put(GameEvent.START_GAME, EVENT_STILL_RUNNING);
+        stateDisplayText.put(GameEvent.GAME_ABORTED, EVENT_GAME_ABORTED);
+        return stateDisplayText;
     }
 }

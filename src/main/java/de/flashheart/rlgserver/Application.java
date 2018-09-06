@@ -49,6 +49,7 @@ public class Application {
             gs1.setZoneid(ZoneId.systemDefault().getId());
             gs1.setTimestamp(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
             gs1.setColor("white");
+
             matchService.update(gs1);
 
             // Finished FC Game - Taken

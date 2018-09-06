@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.flashheart</groupId>
-    <artifactId>rlg-server</artifactId>
+    <artifactId>rlgserver</artifactId>
     <version>0.1.0</version>
 
     <parent>
