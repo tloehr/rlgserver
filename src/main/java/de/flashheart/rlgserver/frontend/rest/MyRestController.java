@@ -27,6 +27,7 @@ public class MyRestController implements HasLogger {
     public static final String GAMESTATE_CREATE = "/rest/gamestate/create";
     public static final String GAMESTATE_GET = "/rest/gamestate/get";
     public static final String GAMESTATE_LIST = "/rest/gamestate/list";
+    public static final String GAMESTATE_LISTRUNNING = "/rest/gamestate/listrunning";
 
 
     public static final String DUMMY_cust = "/rest/cust/dummy";
@@ -36,12 +37,12 @@ public class MyRestController implements HasLogger {
     public static final String DELETE_cust = "/rest/cust/delete/{id}";
 
 
-    private final MatchService gameService;
+    private final MatchService matchService;
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
-    public MyRestController(MatchService gameService) {
-        this.gameService = gameService;
+    public MyRestController(MatchService matchService) {
+        this.matchService = matchService;
 //        this.mapper = new ObjectMapper();
     }
 
@@ -91,7 +92,7 @@ public class MyRestController implements HasLogger {
         getLogger().debug("got: " + gameState);
         try {
             getLogger().info("inbound from: " + gameState.getBombname() + " " + gameState.getUuid());
-            gameService.update(gameState);
+            matchService.update(gameState);
         } catch (JsonProcessingException e) {
             getLogger().warn(e.getMessage(), e);
         }
@@ -105,7 +106,7 @@ public class MyRestController implements HasLogger {
     List<GameState> getGameStates(@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> from, @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> to) {
         ArrayList<GameState> result = new ArrayList<>();
 
-        gameService.findGamesBetween(from.orElse(LocalDateTime.of(1970, 1, 1, 0, 0)), to.orElse(LocalDateTime.of(2500, 12, 31, 23, 59))).forEach(match -> {
+        matchService.findGamesBetween(from.orElse(LocalDateTime.of(1970, 1, 1, 0, 0)), to.orElse(LocalDateTime.of(2500, 12, 31, 23, 59))).forEach(match -> {
             try {
                 result.add(mapper.readValue(match.getJson(), GameState.class));
             } catch (IOException e) {
@@ -116,11 +117,28 @@ public class MyRestController implements HasLogger {
         return result;
     }
 
+    // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.
+       @RequestMapping(value = GAMESTATE_LISTRUNNING, method = RequestMethod.GET)
+       public @ResponseBody
+       List<GameState> listRunning() {
+           ArrayList<GameState> result = new ArrayList<>();
+
+           matchService.findRunningMatches().forEach(match -> {
+               try {
+                   result.add(mapper.readValue(match.getJson(), GameState.class));
+               } catch (IOException e) {
+                   e.printStackTrace();
+               }
+           });
+
+           return result;
+       }
+
     @RequestMapping(value = GAMESTATE_GET, method = RequestMethod.GET)
     public @ResponseBody
     GameState getCustomer(@RequestParam("id") long id) {
         getLogger().debug("GET the gamestate with id: " + id);
-        Optional<Match> optionalGame = gameService.findById(id);
+        Optional<Match> optionalGame = matchService.findById(id);
         GameState gameState = null;
         if (optionalGame.isPresent()) {
             try {
@@ -131,7 +149,7 @@ public class MyRestController implements HasLogger {
         }
         return gameState;
     }
-
+    
 //
 //    @RequestMapping(value = DELETE_cust, method = RequestMethod.DELETE)
 //    public @ResponseBody

@@ -19,5 +19,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
 
     @Lock(LockModeType.OPTIMISTIC)
     List<Match> findByEndofgame(LocalDateTime localDateTime);
+    
+    List<Match> findByQualityEquals(int quality);
 
 }

@@ -2,6 +2,7 @@ package de.flashheart.rlgserver.backend.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.flashheart.rlgserver.app.misc.HasLogger;
 import de.flashheart.rlgserver.app.misc.Tools;
 import de.flashheart.rlgserver.backend.data.entity.Match;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class MatchService extends CrudService<Match> {
+public class MatchService extends CrudService<Match> implements HasLogger {
 
 
     private static final long IDLE_MINUTES_UNTIL_CLEANUP = 10;
@@ -34,7 +35,7 @@ public class MatchService extends CrudService<Match> {
     public static final String RESULT_ATTACKERS_WON = "result_attackers_won";
     public static final String RESULT_DEFENDERS_WON = "result_defenders_won";
     public static final String RESULT_GAME_ABORTED = "result_abort";
-    
+
     @Autowired
     public MatchService(MatchRepository matchRepository) {
         super();
@@ -65,6 +66,10 @@ public class MatchService extends CrudService<Match> {
     public List<Match> findGamesBetween(LocalDateTime from, LocalDateTime to) {
         return matchRepository.findByStartofgameBetween(from, to);
     }
+
+    public List<Match> findRunningMatches() {
+            return matchRepository.findByQualityEquals(QUALITY_RUNNING);
+        }
 
     /**
      * Aktualisiert ein Game Objekt in der Datenbank. Dabei wird anhand der UUID und der matchid
@@ -98,23 +103,26 @@ public class MatchService extends CrudService<Match> {
 
         match.setColor(gameState.getColor());
 
-        if (!matches.isEmpty()) match.setQuality(match.getEndofgame() != null ? QUALITY_FINISHED : QUALITY_RUNNING);
+        if (matches.isEmpty()) match.setQuality(match.getEndofgame() != null ? QUALITY_FINISHED : QUALITY_RUNNING);
 
         save(match);
     }
 
 
-    @Transactional
     /**
      * changes game records to "finished but broken", when the remote device on the field lost contact and could to finish the entry itself.
      */
+    @Transactional
     public void fixBrokenMatches() {
         final List<Match> listRunningMatches = matchRepository.findByEndofgame(null);
+        if (listRunningMatches.isEmpty()) getLogger().info("nothing to fix");
+        
         listRunningMatches.forEach(match -> {
             if (match.getPit().plusMinutes(IDLE_MINUTES_UNTIL_CLEANUP).isAfter(LocalDateTime.now())) {
                 LocalDateTime endOfGame = match.getStartofgame().plus(match.getMaxgametime(), ChronoUnit.MILLIS);
                 match.setEndofgame(endOfGame);
                 match.setQuality(QUALITY_FIXED);
+                getLogger().info("fixing uuid/match: " + match.getUuid() + "/" + match.getMatchid());
                 matchRepository.save(match);
             }
         });

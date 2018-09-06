@@ -41,16 +41,20 @@ public class Match extends AbstractEntity {
     @Lob
     String json;
 
+    public Match() {
+    }
 
     public Match(String uuid, long matchid, String zoneid, String bombname, String gametype, LocalDateTime startofgame, long maxgametime) {
         this.uuid = uuid;
         this.matchid = matchid;
         this.bombname = bombname;
         this.gametype = gametype;
-        this.startofgame = startofgame;
         this.maxgametime = maxgametime;
         pit = LocalDateTime.now();
         this.zoneid = zoneid;
+        this.endofgame = null;
+        this.pausingsince = null;
+        this.startofgame = startofgame;
     }
 
 
