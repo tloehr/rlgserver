@@ -30,6 +30,9 @@ public class Match extends AbstractEntity {
     LocalDateTime startofgame;
     LocalDateTime pausingsince;
     LocalDateTime endofgame;
+    @NotNull
+    long timer;
+    @NotNull
     long remaining;
     @NotNull
     String color; // the bgcolor to show for the match
@@ -52,6 +55,8 @@ public class Match extends AbstractEntity {
         this.bombname = bombname;
         this.gametype = gametype;
         this.maxgametime = maxgametime;
+        timer = 0;
+        remaining = maxgametime;
         pit = LocalDateTime.now();
         this.zoneid = zoneid;
         this.endofgame = null;
@@ -189,6 +194,14 @@ public class Match extends AbstractEntity {
         this.matchrecord = matchrecord;
     }
 
+    public long getTimer() {
+        return timer;
+    }
+
+    public void setTimer(long timer) {
+        this.timer = timer;
+    }
+
     @Override
     public String toString() {
         return "Match{" +
@@ -202,6 +215,7 @@ public class Match extends AbstractEntity {
                 ", startofgame=" + startofgame +
                 ", pausingsince=" + pausingsince +
                 ", endofgame=" + endofgame +
+                ", timer=" + timer +
                 ", remaining=" + remaining +
                 ", color='" + color + '\'' +
                 ", matchid=" + matchid +

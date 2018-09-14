@@ -118,21 +118,21 @@ public class MyRestController implements HasLogger {
     }
 
     // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.
-       @RequestMapping(value = GAMESTATE_LISTRUNNING, method = RequestMethod.GET)
-       public @ResponseBody
-       List<GameState> listRunning() {
-           ArrayList<GameState> result = new ArrayList<>();
+    @RequestMapping(value = GAMESTATE_LISTRUNNING, method = RequestMethod.GET)
+    public @ResponseBody
+    List<GameState> listRunning() {
+        ArrayList<GameState> result = new ArrayList<>();
 
-           matchService.findRunningMatches().forEach(match -> {
-               try {
-                   result.add(mapper.readValue(match.getJson(), GameState.class));
-               } catch (IOException e) {
-                   e.printStackTrace();
-               }
-           });
+        matchService.findRunningMatches().forEach(match -> {
+            try {
+                result.add(mapper.readValue(match.getJson(), GameState.class));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
-           return result;
-       }
+        return result;
+    }
 
     @RequestMapping(value = GAMESTATE_GET, method = RequestMethod.GET)
     public @ResponseBody
@@ -149,7 +149,7 @@ public class MyRestController implements HasLogger {
         }
         return gameState;
     }
-    
+
 //
 //    @RequestMapping(value = DELETE_cust, method = RequestMethod.DELETE)
 //    public @ResponseBody

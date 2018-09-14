@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.flashheart.rlgserver.app.misc.HasLogger;
 import de.flashheart.rlgserver.app.misc.Tools;
 import de.flashheart.rlgserver.backend.data.entity.Match;
+import de.flashheart.rlgserver.backend.data.pojo.GameEvent;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
 import de.flashheart.rlgserver.backend.data.repositories.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,10 @@ public class MatchService extends CrudService<Match> implements HasLogger {
 
         match.setPit(Tools.toLocalDateTime(gameState.getTimestamp(), gameState.getZoneid()));
         match.setJson(json);
+
+        match.setTimer(gameState.getGametime());
         match.setRemaining(gameState.getRemaining());
+        match.setMaxgametime(maxgametime);
 
         match.setPausingsince(gameState.getTimestamp_game_paused() > -1 ? Tools.toLocalDateTime(gameState.getTimestamp_game_paused(), gameState.getZoneid()) : null);
         match.setEndofgame(gameState.getTimestamp_game_ended() > -1 ? Tools.toLocalDateTime(gameState.getTimestamp_game_ended(), gameState.getZoneid()) : null);
@@ -103,9 +107,9 @@ public class MatchService extends CrudService<Match> implements HasLogger {
         match.setState(gameState.getState());
         if (match.getEndofgame() != null) {
             match.setMatchrecord(RESULT_GAME_OVER);
-            if (gameState.getState().equals(GameState.EVENT_GAME_ABORTED)) match.setMatchrecord(RESULT_GAME_ABORTED);
-            if (Arrays.asList(GameState.GAME_OVER_STATES).contains(gameState.getState())) {
-                match.setResult(gameState.getState());
+            if (gameState.getState().equals(GameEvent.GAME_ABORTED)) match.setMatchrecord(RESULT_GAME_ABORTED);
+            if (Arrays.asList(GameEvent.GAME_OVER_EVENTS).contains(gameState.getState())) {
+                match.setResult(gameState.getTeamranking().toString());
             }
         }
 

@@ -1,12 +1,13 @@
 package de.flashheart.rlgserver.backend.data.pojo;
 
+import java.util.LinkedHashMap;
+
 /**
  * Created by tloehr on 25.04.15.
  */
 public class GameEvent {
 
     // Events for farcry
-    public static final String PREGAME = "PREGAME";
     public static final String RESUMED = "RESUMED";
     public static final String FUSED = "FUSED";
     public static final String DEFUSED = "DEFUSED";
@@ -15,30 +16,36 @@ public class GameEvent {
     public static final String DEFENDED = "DEFENDED";
 
     // Common Events
+    public static final String PREGAME = "PREGAME";
     public static final String GOING_TO_PAUSE = "GNGPAUSE";
     public static final String PAUSING = "PAUSING"; // Box pausiert
     public static final String GOING_TO_RESUME = "GNGRESUM";
-
+    public static final String GAME_ABORTED = "GAME_ABORTED"; // wenn das Spiel beendet wurde
+    public static final String LAST_EVENT_REVERTED = "LAST_EVENT_REVERTED"; // wenn das Spiel beendet wurde
 
     // Events for centerflag
+    public static final String FLAG_NEUTRAL = "FLAG_NEUTRAL";
     public static final String BLUE_ACTIVATED = "BLUE_ACTIVATED";
     public static final String RED_ACTIVATED = "RED_ACTIVATED";
+    public static final String YELLOW_ACTIVATED = "YELLOW_ACTIVATED";
+    public static final String GREEN_ACTIVATED = "GREEN_ACTIVATED";
     public static final String GAME_OVER = "GAME_OVER"; // wenn die Spielzeit abgelaufen ist
-    public static final String GAME_ABORTED = "GAME_ABORTED"; // wenn das Spiel beendet wurde
+
     public static final String RESULT_RED_WON = "RESULT_RED_WON";
     public static final String RESULT_BLUE_WON = "RESULT_BLUE_WON";
     public static final String RESULT_DRAW = "RESULT_DRAW"; // Unentschieden
-    public static final String YELLOW_ACTIVATED = "YELLOW_ACTIVATED";
-    public static final String GREEN_ACTIVATED = "GREEN_ACTIVATED";
     public static final String RESULT_GREEN_WON = "RESULT_GREEN_WON";
     public static final String RESULT_YELLOW_WON = "RESULT_YELLOW_WON";
     public static final String RESULT_MULTI_WINNERS = "RESULT_MULTI_WINNERS"; // wenn mehr als einer die bestzeit erreicht hat (seeeeehr unwahrscheinlich)
+
+    public static final String[] GAME_OVER_EVENTS = new String[]{GAME_ABORTED, GAME_OVER, EXPLODED, DEFENDED};
 
 
     protected long pit;
     protected String event;
     protected long gametime;
     protected long remaining;
+    protected LinkedHashMap<String, Integer> teamranking = null;
 
     public GameEvent() {
     }
@@ -48,6 +55,12 @@ public class GameEvent {
         this.event = event;
         this.gametime = gametime;
         this.remaining = remaining;
+    }
+
+
+    public GameEvent(long pit, String event, long gametime, long remaining, LinkedHashMap<String, Integer> teamranking) {
+        this(pit, event, gametime, remaining);
+        this.teamranking = teamranking;
     }
 
     public long getPit() {
@@ -82,9 +95,17 @@ public class GameEvent {
         this.remaining = remaining;
     }
 
+    public LinkedHashMap<String, Integer> getTeamranking() {
+        return teamranking;
+    }
+
+    public void setTeamranking(LinkedHashMap<String, Integer> teamranking) {
+        this.teamranking = teamranking;
+    }
+
     @Override
     public String toString() {
-        return "GameEvent{" +
+        return "de.flashheart.gamestate.GameEvent{" +
                 "pit=" + pit +
                 ", event='" + event + '\'' +
                 ", gametime=" + gametime +
