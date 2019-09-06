@@ -29,6 +29,8 @@ public class MyRestController implements HasLogger {
     public static final String GAMESTATE_LIST = "/rest/gamestate/list";
     public static final String GAMESTATE_LISTRUNNING = "/rest/gamestate/listrunning";
 
+    public static final String READING_CREATE = "/rest/reading/create";
+
 
     public static final String DUMMY_cust = "/rest/cust/dummy";
     public static final String GET_cust = "/rest/cust/{id}";
@@ -84,6 +86,25 @@ public class MyRestController implements HasLogger {
 //        return result;
 //    }
 //
+
+
+
+    // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.
+       @RequestMapping(value = READING_CREATE, method = RequestMethod.POST)
+       public @ResponseBody
+       GameState saveTemperatureReading(@RequestBody GameState gameState) {
+           getLogger().debug("got: " + gameState);
+           try {
+               getLogger().info("inbound from: " + gameState.getBombname() + " " + gameState.getUuid());
+               matchService.update(gameState);
+           } catch (JsonProcessingException e) {
+               getLogger().warn(e.getMessage(), e);
+           }
+
+           return gameState;
+       }
+
+
 
     // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.
     @RequestMapping(value = GAMESTATE_CREATE, method = RequestMethod.POST)
