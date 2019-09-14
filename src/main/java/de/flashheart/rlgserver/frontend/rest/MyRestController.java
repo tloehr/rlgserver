@@ -3,9 +3,13 @@ package de.flashheart.rlgserver.frontend.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.flashheart.rlgserver.app.misc.HasLogger;
+import de.flashheart.rlgserver.backend.data.entity.CoolingDevice;
 import de.flashheart.rlgserver.backend.data.entity.Match;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
+import de.flashheart.rlgserver.backend.data.pojo.SensorEvent;
+import de.flashheart.rlgserver.backend.service.CoolingDeviceService;
 import de.flashheart.rlgserver.backend.service.MatchService;
+import de.flashheart.rlgserver.backend.service.ReadingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,8 +34,8 @@ public class MyRestController implements HasLogger {
     public static final String GAMESTATE_LIST = "/rest/gamestate/list";
     public static final String GAMESTATE_LISTRUNNING = "/rest/gamestate/listrunning";
 
-    public static final String READING_CREATE = "/rest/reading/create";
-
+    public static final String SENSOR_EVENT = "/rest/sensor/event";
+    public static final String CREATE_COOLING_DEVICE = "/rest/coolingdevice/create";
 
     public static final String DUMMY_cust = "/rest/cust/dummy";
     public static final String GET_cust = "/rest/cust/{id}";
@@ -40,12 +45,16 @@ public class MyRestController implements HasLogger {
 
 
     private final MatchService matchService;
+    private final ReadingService readingService;
+    private final CoolingDeviceService coolingDeviceService;
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
-    public MyRestController(MatchService matchService) {
+    public MyRestController(MatchService matchService, ReadingService readingService, CoolingDeviceService coolingDeviceService) {
         this.matchService = matchService;
 //        this.mapper = new ObjectMapper();
+        this.readingService = readingService;
+        this.coolingDeviceService = coolingDeviceService;
     }
 
     @RequestMapping(value = GREETING, method = RequestMethod.GET)
@@ -88,22 +97,21 @@ public class MyRestController implements HasLogger {
 //
 
 
+    // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.
+    @RequestMapping(value = SENSOR_EVENT, method = RequestMethod.POST)
+    public @ResponseBody
+    SensorEvent saveSensorEvent(@RequestBody SensorEvent sensorEvent) {
+//        getLogger().debug("got: " + sensorEvent);
+        readingService.create(sensorEvent);
+        return sensorEvent;
+    }
 
     // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.
-       @RequestMapping(value = READING_CREATE, method = RequestMethod.POST)
-       public @ResponseBody
-       GameState saveTemperatureReading(@RequestBody GameState gameState) {
-           getLogger().debug("got: " + gameState);
-           try {
-               getLogger().info("inbound from: " + gameState.getBombname() + " " + gameState.getUuid());
-               matchService.update(gameState);
-           } catch (JsonProcessingException e) {
-               getLogger().warn(e.getMessage(), e);
-           }
-
-           return gameState;
-       }
-
+    @RequestMapping(value = CREATE_COOLING_DEVICE, method = RequestMethod.POST)
+    public @ResponseBody
+    CoolingDevice createCoolingDeviceIfNecessary(@RequestBody HashMap coolingDeviceDescription) {
+        return coolingDeviceService.createOrUpdate(coolingDeviceDescription);
+    }
 
 
     // The @ResponseBody annotation tells a controller that the object returned is automatically serialized into JSON and passed back into the HttpResponse object.

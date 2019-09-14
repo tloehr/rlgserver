@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 
 public class SensorEvent {
     BigDecimal value;
-    BigDecimal min;
-    BigDecimal max;
     String uuid;
-    String machine;
+
+    public SensorEvent() {
+    }
 
     public BigDecimal getValue() {
         return value;
@@ -15,22 +15,6 @@ public class SensorEvent {
 
     public void setValue(BigDecimal value) {
         this.value = value;
-    }
-
-    public BigDecimal getMin() {
-        return min;
-    }
-
-    public void setMin(BigDecimal min) {
-        this.min = min;
-    }
-
-    public BigDecimal getMax() {
-        return max;
-    }
-
-    public void setMax(BigDecimal max) {
-        this.max = max;
     }
 
     public String getUuid() {
@@ -41,11 +25,16 @@ public class SensorEvent {
         this.uuid = uuid;
     }
 
-    public String getMachine() {
-        return machine;
+    public SensorEvent(String uuid, BigDecimal value) {
+        this.value = value;
+        this.uuid = uuid;
     }
 
-    public void setMachine(String machine) {
-        this.machine = machine;
+    @Override
+    public String toString() {
+        return "SensorEvent{" +
+                "value=" + value +
+                ", uuid='" + uuid + '\'' +
+                '}';
     }
 }

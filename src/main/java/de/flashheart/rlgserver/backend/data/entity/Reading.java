@@ -10,15 +10,9 @@ public class Reading extends AbstractEntity {
     @NotNull
     LocalDateTime pit; // pit of the last entry
     @NotNull
-    String uuid; // of the machine
-    @NotNull
-    String machine; // name des Gerätes. Nur für den Anwender. Ist kein Primärschlüssel oder so
+    String uuid; // of the sensor
     @NotNull
     private BigDecimal temperature;
-    @NotNull
-    private BigDecimal min; // unterer Grenze für Alarm
-    @NotNull
-    private BigDecimal max; // obere Grenze für Alarm. Wird jedes mal vom Sensor mitgegeben.
 
     public Reading() {
     }
@@ -39,14 +33,6 @@ public class Reading extends AbstractEntity {
         this.uuid = uuid;
     }
 
-    public String getMachine() {
-        return machine;
-    }
-
-    public void setMachine(String machine) {
-        this.machine = machine;
-    }
-
     public BigDecimal getTemperature() {
         return temperature;
     }
@@ -55,19 +41,5 @@ public class Reading extends AbstractEntity {
         this.temperature = temperature;
     }
 
-    public BigDecimal getMin() {
-        return min;
-    }
 
-    public void setMin(BigDecimal min) {
-        this.min = min;
-    }
-
-    public BigDecimal getMax() {
-        return max;
-    }
-
-    public void setMax(BigDecimal max) {
-        this.max = max;
-    }
 }
