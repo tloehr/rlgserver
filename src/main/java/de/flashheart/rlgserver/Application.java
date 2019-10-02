@@ -91,7 +91,7 @@ public class Application {
 
 
                    // Nur zur einmaligen Initialisierung der Datenbank
-            dbUserService.createUser("2me@flashheart.de", "torsten", "test1234", "admin");
+//            dbUserService.createUser("2me@flashheart.de", "torsten", "test1234", "admin");
 //            coolingDeviceService.create("Truhe 2", "28-01143bb495aa", new BigDecimal(25).negate(), new BigDecimal(14).negate());
 //            coolingDeviceService.create("Truhe 1", "28-01143b9fa4aa", new BigDecimal(25).negate(), new BigDecimal(14).negate());
 //
