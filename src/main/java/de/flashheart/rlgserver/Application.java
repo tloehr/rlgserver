@@ -1,6 +1,7 @@
 package de.flashheart.rlgserver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.flashheart.rlgserver.app.misc.EmailServiceImpl;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
 import de.flashheart.rlgserver.backend.service.CoolingDeviceService;
 import de.flashheart.rlgserver.backend.service.DBUserService;
@@ -14,11 +15,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 @SpringBootApplication
 @EnableConfigurationProperties
@@ -38,6 +39,13 @@ public class Application {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public SimpleMailMessage template;
+
+
+    @Autowired
+    public EmailServiceImpl emailService;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -90,11 +98,16 @@ public class Application {
 //
 
 
-                   // Nur zur einmaligen Initialisierung der Datenbank
+            // Nur zur einmaligen Initialisierung der Datenbank
 //            dbUserService.createUser("2me@flashheart.de", "torsten", "test1234", "admin");
 //            coolingDeviceService.create("Truhe 2", "28-01143bb495aa", new BigDecimal(25).negate(), new BigDecimal(14).negate());
 //            coolingDeviceService.create("Truhe 1", "28-01143b9fa4aa", new BigDecimal(25).negate(), new BigDecimal(14).negate());
 //
+
+            // Send Testmail
+
+
+            emailService.sendSimpleMessage("torsten.loehr@gmail.com", "spring is calling", "believe it or not");
 
 
         };

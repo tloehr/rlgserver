@@ -31,8 +31,8 @@ public class Tools {
     }
 
     /**
-     * Creates a Color object according to the names of the Java color constants.
-     * A HTML color string like "62A9FF" may also be used. Please remove the leading "#".
+     * Creates a Color object according to the names of the Java color constants. A HTML color string like "62A9FF" may
+     * also be used. Please remove the leading "#".
      *
      * @param colornameOrHTMLCode
      * @return the desired color. Defaults to BLACK, in case of an error.
@@ -85,11 +85,12 @@ public class Tools {
     }
 
     public static long toLocalMillis(LocalDateTime ldt) {
-           return ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-       }
+        return ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    }
 
-       public static LocalDateTime toLocalDateTime(long millis, String zoneid) {
-           return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.of(zoneid));
-       }
+    public static LocalDateTime toLocalDateTime(long millis, String zoneid) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.of(zoneid));
+    }
+
 
 }
