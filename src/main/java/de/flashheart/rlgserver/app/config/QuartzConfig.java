@@ -1,5 +1,6 @@
 package de.flashheart.rlgserver.app.config;
 
+import de.flashheart.rlgserver.backend.jobs.AlertJob;
 import de.flashheart.rlgserver.backend.jobs.CleanupGameJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,28 @@ public class QuartzConfig {
                 .newTrigger()
                 .forJob(cleanupGameJobDetail())
                 .withIdentity("cleanupgametrigger1")
+                .withSchedule(scheduleBuilder)
+                .build();
+    }
+
+    @Bean
+    public JobDetail alertJobDetail() {
+        return JobBuilder.newJob(AlertJob.class)
+                .withIdentity("alertjob")
+                .storeDurably()
+                .build();
+    }
+
+    @Bean
+    public Trigger alertJobTrigger() {
+        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
+                .withIntervalInSeconds(10)
+                .repeatForever();
+
+        return TriggerBuilder
+                .newTrigger()
+                .forJob(alertJobDetail())
+                .withIdentity("alertjobtrigger")
                 .withSchedule(scheduleBuilder)
                 .build();
     }

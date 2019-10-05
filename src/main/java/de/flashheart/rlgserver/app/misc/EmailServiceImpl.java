@@ -1,11 +1,13 @@
 package de.flashheart.rlgserver.app.misc;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
@@ -16,17 +18,29 @@ import java.io.File;
 public class EmailServiceImpl implements EmailService {
 
     @Autowired
-    public JavaMailSender emailSender;
+    private JavaMailSender emailSender; // created automatically
+
+    @Value("${spring.mail.properties.mail.sender.email}")
+    public String senderEmail;
+
+    @Value("${spring.mail.properties.mail.sender.name}")
+    public String senderName;
 
     public void sendSimpleMessage(String to, String subject, String text) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(text);
-            message.setFrom("notify@wiedenhof.info");
-            
-            emailSender.send(message);
+//            SimpleMailMessage message = new SimpleMailMessage();
+
+            MimeMessagePreparator mailMessage = mimeMessage -> {
+                MimeMessageHelper message = new MimeMessageHelper(
+                        mimeMessage, true, "UTF-8");
+
+                message.setFrom(senderEmail, senderName);
+                message.setTo(to);
+                message.setSubject(subject);
+                message.setText(text);
+            };
+
+            emailSender.send(mailMessage);
         } catch (MailException exception) {
             exception.printStackTrace();
         }

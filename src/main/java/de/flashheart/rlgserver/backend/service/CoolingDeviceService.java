@@ -77,4 +77,8 @@ public class CoolingDeviceService extends CrudService<CoolingDevice> implements 
     }
 
 
+    public Optional<CoolingDevice> findByUuid(String uuid) {
+        return coolingDeviceRepository.findByUuid(uuid);
+
+    }
 }

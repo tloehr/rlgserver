@@ -1,7 +1,6 @@
 package de.flashheart.rlgserver.backend.service;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.flashheart.rlgserver.app.misc.HasLogger;
 import de.flashheart.rlgserver.backend.data.entity.Reading;
 import de.flashheart.rlgserver.backend.data.pojo.SensorEvent;
@@ -18,13 +17,13 @@ import java.util.Optional;
 @Service
 public class ReadingService extends CrudService<Reading> implements HasLogger {
     private final ReadingRepository readingRepository;
-    private final ObjectMapper mapper;
+//    private final ObjectMapper mapper;
 
 
     @Autowired
     public ReadingService(ReadingRepository readingRepository) {
         this.readingRepository = readingRepository;
-        this.mapper = new ObjectMapper();
+//        this.mapper = new ObjectMapper();
     }
 
     @Override

@@ -3,6 +3,7 @@ package de.flashheart.rlgserver.frontend.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.flashheart.rlgserver.app.misc.HasLogger;
+import de.flashheart.rlgserver.app.misc.NotificationService;
 import de.flashheart.rlgserver.backend.data.entity.CoolingDevice;
 import de.flashheart.rlgserver.backend.data.entity.Match;
 import de.flashheart.rlgserver.backend.data.pojo.GameState;
@@ -47,14 +48,18 @@ public class MyRestController implements HasLogger {
     private final MatchService matchService;
     private final ReadingService readingService;
     private final CoolingDeviceService coolingDeviceService;
+    private final NotificationService notificationService;
     private final ObjectMapper mapper = new ObjectMapper();
+//    Random rn = new Random();
+//    private HashMap<String, String> alerts = new HashMap<>();
 
     @Autowired
-    public MyRestController(MatchService matchService, ReadingService readingService, CoolingDeviceService coolingDeviceService) {
+    public MyRestController(MatchService matchService, ReadingService readingService, CoolingDeviceService coolingDeviceService, NotificationService notificationService) {
         this.matchService = matchService;
 //        this.mapper = new ObjectMapper();
         this.readingService = readingService;
         this.coolingDeviceService = coolingDeviceService;
+        this.notificationService = notificationService;
     }
 
     @RequestMapping(value = GREETING, method = RequestMethod.GET)
@@ -103,6 +108,22 @@ public class MyRestController implements HasLogger {
     SensorEvent saveSensorEvent(@RequestBody SensorEvent sensorEvent) {
 //        getLogger().debug("got: " + sensorEvent);
         readingService.create(sensorEvent);
+
+        coolingDeviceService.findByUuid(sensorEvent.getUuid()).ifPresent(coolingDevice -> {
+            int event = NotificationService.NORMAL;
+            String message = "";
+            if (coolingDevice.getMin().compareTo(sensorEvent.getValue()) > 0) {
+                event = NotificationService.TOO_LOW;
+                message = "Wert zu niedrig für " + coolingDevice.getMachine() + ". Soll >" + coolingDevice.getMin() + "°C  Ist: " + sensorEvent.getValue() + "°C";
+            }
+            if (sensorEvent.getValue().compareTo(coolingDevice.getMax()) > 0) {
+                event = NotificationService.TOO_HIGH;
+                message = "Wert zu hoch für " + coolingDevice.getMachine() + ". Soll <" + coolingDevice.getMax() + "°C  Ist: " + sensorEvent.getValue() + "°C";
+            }
+
+            notificationService.addEvent(sensorEvent.getUuid(), event, message);
+        });
+
         return sensorEvent;
     }
 
