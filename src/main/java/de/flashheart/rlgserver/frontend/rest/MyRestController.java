@@ -106,22 +106,9 @@ public class MyRestController implements HasLogger {
     @RequestMapping(value = SENSOR_EVENT, method = RequestMethod.POST)
     public @ResponseBody
     SensorEvent saveSensorEvent(@RequestBody SensorEvent sensorEvent) {
-//        getLogger().debug("got: " + sensorEvent);
         readingService.create(sensorEvent);
-
         coolingDeviceService.findByUuid(sensorEvent.getUuid()).ifPresent(coolingDevice -> {
-            int event = NotificationService.NORMAL;
-            String message = "";
-            if (coolingDevice.getMin().compareTo(sensorEvent.getValue()) > 0) {
-                event = NotificationService.TOO_LOW;
-                message = "Wert zu niedrig für " + coolingDevice.getMachine() + ". Soll >" + coolingDevice.getMin() + "°C  Ist: " + sensorEvent.getValue() + "°C";
-            }
-            if (sensorEvent.getValue().compareTo(coolingDevice.getMax()) > 0) {
-                event = NotificationService.TOO_HIGH;
-                message = "Wert zu hoch für " + coolingDevice.getMachine() + ". Soll <" + coolingDevice.getMax() + "°C  Ist: " + sensorEvent.getValue() + "°C";
-            }
-
-            notificationService.addEvent(sensorEvent.getUuid(), event, message);
+            notificationService.addEvent(coolingDevice, sensorEvent.getValue());
         });
 
         return sensorEvent;
