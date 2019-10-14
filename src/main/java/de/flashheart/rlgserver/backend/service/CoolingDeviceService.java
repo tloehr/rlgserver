@@ -11,7 +11,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -42,32 +41,12 @@ public class CoolingDeviceService extends CrudService<CoolingDevice> implements 
 
 
     /**
-     * Welcher Sensor welcher Truhe oder Kühlschrank zugeordnet werden sollen, weiß der Client.
-     * Bei jedem Client Start sendet er dieses Wissen einmal an den Rest Server.
-     * Wenn das Gerät (Schrank oder Truhe) schon da ist, wird der Datensatz nur aktualisiert (MIN; MAX usw),
-     * falls nicht, wird ein neuer Datensatz angelegt.
+     * Welcher Sensor welcher Truhe oder Kühlschrank zugeordnet werden sollen, weiß der Client. Bei jedem Client Start
+     * sendet er dieses Wissen einmal an den Rest Server. Wenn das Gerät (Schrank oder Truhe) schon da ist, wird der
+     * Datensatz nur aktualisiert (MIN; MAX usw), falls nicht, wird ein neuer Datensatz angelegt.
      *
-     * @param coolingDeviceDescription - Eine Hashmap, die alle Informationen zum Gerät enthält.
-     * @return der neue oder aktualisierte Datensatz.
      */
-    public CoolingDevice createOrUpdate(HashMap coolingDeviceDescription) {
-        String machine = coolingDeviceDescription.getOrDefault("machine", "").toString();
-        String uuid = coolingDeviceDescription.getOrDefault("uuid", "").toString();
-
-        BigDecimal min;
-        BigDecimal max;
-        try {
-            min = new BigDecimal((String) coolingDeviceDescription.getOrDefault("min", ""));
-            max = new BigDecimal((String) coolingDeviceDescription.getOrDefault("max", ""));
-        } catch (NumberFormatException nfe) {
-            getLogger().warn(nfe.getMessage());
-            min = null;
-            max = null;
-        }
-
-
-        if (machine.isEmpty() || uuid.isEmpty() || min == null || max == null) return null;  // fehlerhafte Map
-
+    public CoolingDevice createOrUpdate(String uuid, String machine, BigDecimal min, BigDecimal max) {
         CoolingDevice coolingDevice = coolingDeviceRepository.findByUuid(uuid).orElse(new CoolingDevice(machine, uuid, min, max));
         coolingDevice.setMachine(machine);
         coolingDevice.setUuid(uuid);
