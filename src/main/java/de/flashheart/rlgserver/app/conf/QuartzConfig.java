@@ -1,4 +1,4 @@
-package de.flashheart.rlgserver.app.config;
+package de.flashheart.rlgserver.app.conf;
 
 import de.flashheart.rlgserver.backend.jobs.AlertJob;
 import de.flashheart.rlgserver.backend.jobs.CleanupGameJob;
