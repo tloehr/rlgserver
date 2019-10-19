@@ -20,7 +20,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;                        
 
 /**
  * http://websystique.com/spring-security/secure-spring-rest-api-using-basic-authentication/
@@ -49,14 +49,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
     }
 
-    @Bean
-    public RestAuthenticationEntryPoint getBasicAuthEntryPoint() {
-        return new RestAuthenticationEntryPoint();
-    }
-
-//    /* To allow Pre-flight [OPTIONS] request from browser */
-//    @Override
-//    public void configure(WebSecurity web) throws Exception {
-//        web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
+//    @Bean
+//    public RestAuthenticationEntryPoint getBasicAuthEntryPoint() {
+//        return new RestAuthenticationEntryPoint();
 //    }
+
+
 }

@@ -17,7 +17,9 @@ public class NotificationService implements HasLogger {
     public static final int TOO_LOW = 0;
     public static final int NORMAL = 1;
     public static final int TOO_HIGH = 2;
-    public static final String[] SITUATIONEN = new String[]{"zu niedrig", "normal", "zu hoch"};
+    public static final int DEVICE_MISSING = 3;
+    public static final int DEVICE_NEW_DEVICE = 4;
+    public static final String[] SITUATIONEN = new String[]{"zu niedrig", "normal", "zu hoch", "Sensor fehlt", "Sensor neu"};
     public final EmailServiceImpl emailService;
 
     // anders mit eigener tabelle und last seen usw. damit man auch ausgefallene Geräte melden kann.
@@ -30,9 +32,7 @@ public class NotificationService implements HasLogger {
     public NotificationService(EmailServiceImpl emailService) {
         this.emailService = emailService;
         this.currentSituation = Collections.synchronizedMap(new HashMap<>());
-        getLogger().debug("Constructor() is called");
     }
-
 
     private void addEvent(String uuid, int event, String description) {
         getLogger().debug("add Event" + uuid + " Event:" + event + "  " + description);
@@ -46,6 +46,14 @@ public class NotificationService implements HasLogger {
             getLogger().debug(localDateTimeBooleanStringTriple.toString());
         });
     }
+
+//    public void addMissingDeviceEvent(CoolingDevice coolingDevice) {
+//        addEvent(coolingDevice.getUuid(), DEVICE_MISSING, coolingDevice.getMachine() + "// Dieser Sensor antwortet nicht mehr.");
+//    }
+//
+//    public void addNewDeviceEvent(CoolingDevice coolingDevice) {
+//        addEvent(coolingDevice.getUuid(), DEVICE_NEW_DEVICE, coolingDevice.getMachine() + "// Neuer Sensor gefunden.");
+//    }
 
     public void addEvent(CoolingDevice coolingDevice, BigDecimal currentReading) {
         int event = NotificationService.NORMAL;
@@ -67,7 +75,7 @@ public class NotificationService implements HasLogger {
             // value2 ist der boolean der anzeigt ob das schon reported wurde.
             if (!eventDescription.getValue2()) {
                 notificationText.append(eventDescription.getValue3() + " // [" + uuid + "]\n");
-                currentSituation.put(uuid, new Quartet(eventDescription.getValue0(), eventDescription.getValue1(), true, eventDescription.getValue3()));
+                currentSituation.put(uuid, new Quartet(eventDescription.getValue0(), eventDescription.getValue1(), true, eventDescription.getValue3())); // mark as sent already
             }
         });
         if (notificationText.length() > 0) {

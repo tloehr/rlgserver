@@ -36,8 +36,12 @@ public class DBUserService extends CrudService<DBUser> {
         return dbUserRepository.findAll(pageable);
     }
 
-    public DBUser createUser(String email, String name, String password, String role){
-        return save(new DBUser(email, name, passwordEncoder.encode(password), role));
+    public DBUser createUserIfNecessary(String email, String name, String password, String role) {
+        Optional<DBUser> myuser = dbUserRepository.findByUsername(name);
+
+        if (myuser.isPresent()) return myuser.get();
+        else return save(new DBUser(email, name, passwordEncoder.encode(password), role));
+//        return dbUserRepository.findByUsername(name).orElse(save(new DBUser(email, name, passwordEncoder.encode(password), role)));
     }
 
 }
