@@ -4,6 +4,7 @@ package de.flashheart.rlgserver.backend.service;
 import de.flashheart.rlgserver.app.misc.HasLogger;
 import de.flashheart.rlgserver.backend.data.entity.CoolingDevice;
 import de.flashheart.rlgserver.backend.data.repositories.CoolingDeviceRepository;
+import de.flashheart.rlgserver.backend.data.repositories.ReadingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,17 +12,20 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CoolingDeviceService extends CrudService<CoolingDevice> implements HasLogger {
     private final CoolingDeviceRepository coolingDeviceRepository;
+    private final ReadingRepository readingRepository;
     private final BigDecimal minus100 = new BigDecimal(100).negate();
 
     @Autowired
-    public CoolingDeviceService(CoolingDeviceRepository coolingDeviceRepository) {
+    public CoolingDeviceService(CoolingDeviceRepository coolingDeviceRepository, ReadingRepository readingRepository) {
         this.coolingDeviceRepository = coolingDeviceRepository;
 
+        this.readingRepository = readingRepository;
     }
 
     @Override
@@ -44,7 +48,6 @@ public class CoolingDeviceService extends CrudService<CoolingDevice> implements 
      * Welcher Sensor welcher Truhe oder Kühlschrank zugeordnet werden sollen, weiß der Client. Bei jedem Client Start
      * sendet er dieses Wissen einmal an den Rest Server. Wenn das Gerät (Schrank oder Truhe) schon da ist, wird der
      * Datensatz nur aktualisiert (MIN; MAX usw), falls nicht, wird ein neuer Datensatz angelegt.
-     *
      */
     public CoolingDevice createOrUpdate(String uuid, String machine, BigDecimal min, BigDecimal max) {
         CoolingDevice coolingDevice = coolingDeviceRepository.findByUuid(uuid).orElse(new CoolingDevice(machine, uuid, min, max));
@@ -58,6 +61,9 @@ public class CoolingDeviceService extends CrudService<CoolingDevice> implements 
 
     public Optional<CoolingDevice> findByUuid(String uuid) {
         return coolingDeviceRepository.findByUuid(uuid);
+    }
 
+    public List<CoolingDevice> findAll() {
+        return coolingDeviceRepository.findAllByOrderByMachine();
     }
 }

@@ -2,6 +2,7 @@ package de.flashheart.rlgserver.backend.service;
 
 
 import de.flashheart.rlgserver.app.misc.HasLogger;
+import de.flashheart.rlgserver.backend.data.entity.CoolingDevice;
 import de.flashheart.rlgserver.backend.data.entity.Reading;
 import de.flashheart.rlgserver.backend.data.repositories.ReadingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,10 @@ public class ReadingService extends CrudService<Reading> implements HasLogger {
         result = Optional.ofNullable(save(reading));
 
         return result;
+    }
+
+    public Optional<Reading> lastReading4(CoolingDevice coolingDevice) {
+        return readingRepository.findTopByUuidOrderByPitDesc(coolingDevice.getUuid());
     }
 }
 

@@ -1,5 +1,9 @@
 package de.flashheart.rlgserver.frontend;
 
+import com.vaadin.flow.component.charts.Chart;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.ListItem;
+import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.router.Route;
@@ -21,6 +25,14 @@ public class MyTest extends PolymerTemplate<MyTest.MyTestModel> {
 
     @Id("vaadinVerticalLayout")
     private VerticalLayout vaadinVerticalLayout;
+    @Id("li")
+    private ListItem li;
+    @Id("ul")
+    private UnorderedList ul;
+    @Id("h1")
+    private H1 h1;
+    @Id("vaadinChart")
+    private Chart vaadinChart;
 
     /**
      * Creates a new MyTest.

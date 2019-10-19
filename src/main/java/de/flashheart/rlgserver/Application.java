@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +24,7 @@ import java.io.IOException;
 @SpringBootApplication
 @EnableConfigurationProperties
 @EnableScheduling
-@EnableCaching
+@EnableCaching 
 public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
@@ -51,6 +52,10 @@ public class Application {
     public CommandLineRunner demo() {
         return (args) -> {
             dbUserService.createUserIfNecessary("2me@flashheart.de", "torsten", "test1234", "admin");
+
+//            log.debug(coolingDeviceService.lastSeen("dahjdhaskj").toString());
+//            log.debug(coolingDeviceService.lastSeen("28-01143b87deaa").toString());
+
         };
 
     }

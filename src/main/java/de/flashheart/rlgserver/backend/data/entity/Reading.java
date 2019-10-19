@@ -1,11 +1,14 @@
 package de.flashheart.rlgserver.backend.data.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(indexes = {@Index(name = "PIT_INDEX", columnList = "pit")})
 public class Reading extends AbstractEntity {
     @NotNull
     LocalDateTime pit; // pit of the last entry

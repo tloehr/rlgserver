@@ -263,7 +263,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-       
 
 
         <!-- End Spring -->
@@ -285,6 +284,7 @@
             <artifactId>vaadin-testbench</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
 
