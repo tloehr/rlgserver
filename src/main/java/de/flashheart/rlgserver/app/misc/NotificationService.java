@@ -1,12 +1,12 @@
 package de.flashheart.rlgserver.app.misc;
 
 import de.flashheart.rlgserver.backend.data.entity.CoolingDevice;
-import org.javatuples.Quartet;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,61 +21,53 @@ public class NotificationService implements HasLogger {
     public static final int DEVICE_NEW_DEVICE = 4;
     public static final String[] SITUATIONEN = new String[]{"zu niedrig", "normal", "zu hoch", "Sensor fehlt", "Sensor neu"};
     public final EmailServiceImpl emailService;
+    @Value("${notification.threshold}")
+    private String nthreshold;
+    private int THRESHOLD;
 
-    // anders mit eigener tabelle und last seen usw. damit man auch ausgefallene Geräte melden kann.
-    // das aber später
-
-    // uuid, true wenn bereits per mail über das ereignis berichtet wurde
-    // (wann, event, gesendet?, description)
-    private final Map<String, Quartet<LocalDateTime, Integer, Boolean, String>> currentSituation;
+    private final Map<String, ArrayList<String>> watchlist;
 
     public NotificationService(EmailServiceImpl emailService) {
         this.emailService = emailService;
-        this.currentSituation = Collections.synchronizedMap(new HashMap<>());
+//        this.currentSituation = Collections.synchronizedMap(new ashMap<>());
+        watchlist = Collections.synchronizedMap(new HashMap<>());
+        THRESHOLD = 5;
     }
 
     private void addEvent(String uuid, int event, String description) {
-        getLogger().debug("add Event" + uuid + " Event:" + event + "  " + description);
-
-        if (!currentSituation.containsKey(uuid) || currentSituation.get(uuid).getValue1() != event) {
-            currentSituation.put(uuid, new Quartet(LocalDateTime.now(), event, false, description));
+        getLogger().debug(String.format("adding Event %s for device %s", description, uuid));
+        watchlist.putIfAbsent(uuid, new ArrayList<>());
+        if (event == NORMAL) {
+            watchlist.get(uuid).clear();
+        } else if (event == DEVICE_MISSING) {
+            emailService.sendSimpleMessage("torsten.loehr@gmail.com", "Benachrichtigung", "Device %s is missing");
+        } else {
+            watchlist.get(uuid).add(description);
         }
-
-        currentSituation.forEach((s, localDateTimeBooleanStringTriple) -> {
-            getLogger().debug(s);
-            getLogger().debug(localDateTimeBooleanStringTriple.toString());
-        });
     }
 
-//    public void addMissingDeviceEvent(CoolingDevice coolingDevice) {
-//        addEvent(coolingDevice.getUuid(), DEVICE_MISSING, coolingDevice.getMachine() + "// Dieser Sensor antwortet nicht mehr.");
-//    }
-//
-//    public void addNewDeviceEvent(CoolingDevice coolingDevice) {
-//        addEvent(coolingDevice.getUuid(), DEVICE_NEW_DEVICE, coolingDevice.getMachine() + "// Neuer Sensor gefunden.");
-//    }
-
-    public void addEvent(CoolingDevice coolingDevice, BigDecimal currentReading) {
+    public void addEvent(CoolingDevice coolingDevice, BigDecimal temperature) {
         int event = NotificationService.NORMAL;
-        String message = "Wert normal für " + coolingDevice.getMachine() + ": " + currentReading.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
-        if (coolingDevice.getMin().compareTo(currentReading) > 0) {
+        String message = "Wert normal für " + coolingDevice.getMachine() + ": " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
+        if (coolingDevice.getMin().compareTo(temperature) > 0) {
             event = NotificationService.TOO_LOW;
-            message = "Wert zu niedrig für " + coolingDevice.getMachine() + ". Soll > " + coolingDevice.getMin() + "°C  Ist: " + currentReading.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
+            message = "Wert zu niedrig für " + coolingDevice.getMachine() + ". Soll > " + coolingDevice.getMin() + "°C  Ist: " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
         }
-        if (currentReading.compareTo(coolingDevice.getMax()) > 0) {
+        if (temperature.compareTo(coolingDevice.getMax()) > 0) {
             event = NotificationService.TOO_HIGH;
-            message = "Wert zu hoch für " + coolingDevice.getMachine() + ". Soll < " + coolingDevice.getMax() + "°C  Ist: " + currentReading.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
+            message = "Wert zu hoch für " + coolingDevice.getMachine() + ". Soll < " + coolingDevice.getMax() + "°C  Ist: " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
         }
         addEvent(coolingDevice.getUuid(), event, message);
     }
 
     public void checkForNotifications() {
         final StringBuilder notificationText = new StringBuilder();
-        currentSituation.forEach((uuid, eventDescription) -> {
-            // value2 ist der boolean der anzeigt ob das schon reported wurde.
-            if (!eventDescription.getValue2()) {
-                notificationText.append(eventDescription.getValue3() + " // [" + uuid + "]\n");
-                currentSituation.put(uuid, new Quartet(eventDescription.getValue0(), eventDescription.getValue1(), true, eventDescription.getValue3())); // mark as sent already
+        watchlist.forEach((uuid, events) -> {
+            getLogger().debug(String.format("Number of events for device %s: %s", uuid, events.size()));
+            if (events.size() > THRESHOLD) {
+                getLogger().debug("Threshold reached. Notifiying.");
+                events.forEach(message -> notificationText.append(message + " // [" + uuid + "]\n"));
+                events.clear();
             }
         });
         if (notificationText.length() > 0) {

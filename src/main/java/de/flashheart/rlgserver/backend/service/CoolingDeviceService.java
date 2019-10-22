@@ -66,4 +66,8 @@ public class CoolingDeviceService extends CrudService<CoolingDevice> implements 
     public List<CoolingDevice> findAll() {
         return coolingDeviceRepository.findAllByOrderByMachine();
     }
+
+//    public static boolean isInRange(BigDecimal temperature, CoolingDevice coolingDevice) {
+//        return coolingDevice.getMin().compareTo(temperature) <= 0 && temperature.compareTo(coolingDevice.getMax()) <= 0;
+//    }
 }

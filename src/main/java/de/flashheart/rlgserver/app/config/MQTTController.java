@@ -31,11 +31,11 @@ public class MQTTController implements HasLogger {
     }
 
     @Value("${spring.mqtt.url}")
-    public String mqtturl;
-    @Value("${spring.mqtt.clientid}")
-    public String mqttid;
-    @Value("${spring.mqtt.topic}")
-    public String mqttopic; // dont forget the closing '/'
+       public String mqtturl;
+       @Value("${spring.mqtt.clientid}")
+       public String mqttid;
+       @Value("${spring.mqtt.topic}")
+       public String mqttopic; // dont forget the closing '/'
 
     @Bean
     public MessageChannel mqttInputChannel() {
@@ -45,7 +45,7 @@ public class MQTTController implements HasLogger {
     @Bean
     public MessageProducer inbound() {
         MqttPahoMessageDrivenChannelAdapter adapter =
-                new MqttPahoMessageDrivenChannelAdapter(mqtturl, mqttid, mqttopic+"#");
+                new MqttPahoMessageDrivenChannelAdapter(mqtturl, mqttid, mqttopic + "#");
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(2);

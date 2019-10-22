@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -24,8 +24,9 @@ import java.io.IOException;
 @SpringBootApplication
 @EnableConfigurationProperties
 @EnableScheduling
-@EnableCaching 
-public class Application {
+@EnableCaching
+public class Application extends SpringBootServletInitializer {
+    // https://stackoverflow.com/questions/54226981/vaadin-spring-projekt-expects-no-arg-constructor-only-on-tomcat-not-local
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     @Autowired

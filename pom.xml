@@ -13,7 +13,7 @@
         <version>2.1.9.RELEASE</version>
     </parent>
 
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -23,6 +23,7 @@
         <vaadin.version>14.0.9</vaadin.version>
         <mysql.connector.version>5.1.47</mysql.connector.version>
         <javamail.version>1.6.2</javamail.version>
+<!--        <flow.maven.plugin.version>2.0.15</flow.maven.plugin.version>-->
     </properties>
 
     <!--  Maven separates plugins from "normal" dependencies of a project. A
@@ -156,11 +157,11 @@
             <artifactId>spring-integration-mqtt</artifactId>
             <version>5.2.0.RELEASE</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-devtools</artifactId>-->
+        <!--            <optional>true</optional>-->
+        <!--        </dependency>-->
 
         <!--        __     __              _ _       -->
         <!--        \ \   / /_ _  __ _  __| (_)_ __  -->
@@ -210,11 +211,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-testbench</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.vaadin</groupId>-->
+        <!--            <artifactId>vaadin-testbench</artifactId>-->
+        <!--            <scope>test</scope>-->
+        <!--        </dependency>-->
 
         <!--        _   _               -->
         <!--   ___ | |_| |__   ___ _ __ -->
@@ -290,24 +291,40 @@
 
             <build>
                 <plugins>
+
+                    <plugin>
+                        <groupId>com.vaadin</groupId>
+                        <artifactId>vaadin-maven-plugin</artifactId>
+                        <version>${vaadin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-frontend</goal>
+                                    <goal>build-frontend</goal>
+                                </goals>
+                                <phase>compile</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!--                    <plugin>-->
+                    <!--                        <groupId>com.vaadin</groupId>-->
+                    <!--                        <artifactId>flow-maven-plugin</artifactId>-->
+                    <!--                        <version>${flow.maven.plugin.version}</version>-->
+                    <!--                        <executions>-->
+                    <!--                            <execution>-->
+                    <!--                                <goals>-->
+                    <!--                                    <goal>prepare-frontend</goal>-->
+                    <!--                                    <goal>build-frontend</goal>-->
+                    <!--                                </goals>-->
+                    <!--                            </execution>-->
+                    <!--                        </executions>-->
+                    <!--                    </plugin>-->
                     <plugin>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
                             <jvmArguments>-Dvaadin.productionMode</jvmArguments>
                         </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.vaadin</groupId>
-                        <artifactId>vaadin-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>build-frontend</goal>
-                                </goals>
-                                <phase>compile</phase>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
