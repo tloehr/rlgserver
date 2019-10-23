@@ -22,16 +22,15 @@ public class NotificationService implements HasLogger {
     public static final String[] SITUATIONEN = new String[]{"zu niedrig", "normal", "zu hoch", "Sensor fehlt", "Sensor neu"};
     public final EmailServiceImpl emailService;
     @Value("${notification.threshold}")
-    private String nthreshold;
     private int THRESHOLD;
+    @Value("${tcserver.devmode}")
+    private boolean DEVMODE;
 
     private final Map<String, ArrayList<String>> watchlist;
 
     public NotificationService(EmailServiceImpl emailService) {
         this.emailService = emailService;
-//        this.currentSituation = Collections.synchronizedMap(new ashMap<>());
         watchlist = Collections.synchronizedMap(new HashMap<>());
-        THRESHOLD = 5;
     }
 
     private void addEvent(String uuid, int event, String description) {
@@ -61,6 +60,7 @@ public class NotificationService implements HasLogger {
     }
 
     public void checkForNotifications() {
+        if (DEVMODE) return;
         final StringBuilder notificationText = new StringBuilder();
         watchlist.forEach((uuid, events) -> {
             getLogger().debug(String.format("Number of events for device %s: %s", uuid, events.size()));

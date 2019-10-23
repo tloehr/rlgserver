@@ -27,6 +27,7 @@ import java.io.IOException;
 @EnableCaching
 public class Application extends SpringBootServletInitializer {
     // https://stackoverflow.com/questions/54226981/vaadin-spring-projekt-expects-no-arg-constructor-only-on-tomcat-not-local
+    // Finally, we initialize the Servlet context required by Tomcat by implementing the SpringBootServletInitializer interface.
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     @Autowired
