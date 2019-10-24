@@ -1,53 +1,85 @@
 package de.flashheart.rlgserver.frontend;
 
-import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.polymertemplate.Id;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.component.page.Viewport;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.data.provider.CallbackDataProvider;
+import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.templatemodel.TemplateModel;
+import com.vaadin.flow.server.PWA;
 import de.flashheart.rlgserver.backend.data.entity.Reading;
+import de.flashheart.rlgserver.backend.data.pojo.CurrentSituation;
+import de.flashheart.rlgserver.backend.data.repositories.ReadingRepository;
 import de.flashheart.rlgserver.backend.service.CoolingDeviceService;
 import de.flashheart.rlgserver.backend.service.ReadingService;
+import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-/**
- * A Designer generated component for the main-view template.
- * <p>
- * Designer will add and remove fields with @Id mappings but does not overwrite or otherwise change this file.
- */
-@Tag("main-view")
-@JsModule("./main-view.js")
 @Route
-public class MainView extends PolymerTemplate<MainView.MainViewModel> {
-
-    @Id("sideview")
-    private VerticalLayout sideview;
-    @Id("mainview")
-    private VerticalLayout mainview;
+@Viewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes, viewport-fit=cover")
+@PWA(name = "My Application", shortName = "My App")
+public class MainView extends AppLayout {
 
     /**
      * Creates a new MainView.
      */
-    public MainView(CoolingDeviceService coolingDeviceService, ReadingService readingService) {
+    public MainView(CoolingDeviceService coolingDeviceService, ReadingService readingService, ReadingRepository readingRepository) {
+
+
+        Image img = new Image("https://i.imgur.com/GPpnszs.png", "Vaadin Logo");
+        img.setHeight("44px");
+        addToNavbar(new DrawerToggle(), img);
+        Tabs tabs = new Tabs(new Tab("Home"), new Tab("About"));
+        tabs.setOrientation(Tabs.Orientation.VERTICAL);
+        addToDrawer(tabs);
+
+        HorizontalLayout layout = new HorizontalLayout();
+        setContent(layout);
+        layout.setWidthFull();
+        layout.getStyle().set("border", "1px solid #9E9E9E");
+
+        VerticalLayout leftLayout = new VerticalLayout();
+        leftLayout.setHeightFull();
+
+        HorizontalLayout buttonsLayout = new HorizontalLayout();
+
+        layout.add(leftLayout);
+        layout.setFlexGrow(0.5, leftLayout);
+
+        Grid<CurrentSituation> currentSituationGrid = new Grid(CurrentSituation.class);
+        currentSituationGrid.setItems(coolingDeviceService.getCurrentSituation());
+        leftLayout.add(currentSituationGrid);
+        leftLayout.add(buttonsLayout);
+
+        Grid<Reading> readingGrid = new Grid<>(Reading.class);
+        CallbackDataProvider<Reading, Void> provider = DataProvider.fromCallbacks(query -> readingService.findAnyMatching(Optional.empty(), new Page, query -> re);
+        readingGrid.setDataProvider(provider);
+        
+
+        
+
+
         // You can initialise any data required for the connected UI components here.
         coolingDeviceService.findAll().forEach(coolingDevice -> {
             Button button = new Button(coolingDevice.getMachine(), buttonClickEvent -> {
                 Optional<Reading> reading = readingService.lastReading4(coolingDevice);
                 reading.ifPresent(reading1 -> Notification.show("Letzter Wert: " + reading1.getPit() + " " + reading1.getTemperature() + "°C"));
             });
-            sideview.add(button);
+            buttonsLayout.add(button);
         });
     }
 
-    /**
-     * This model binds properties between MainView and main-view
-     */
-    public interface MainViewModel extends TemplateModel {
-        // Add setters and getters for template properties here.
-    }
+
+
 }

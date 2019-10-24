@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -58,6 +59,18 @@ public class ReadingService extends CrudService<Reading> implements HasLogger {
 
     public Optional<Reading> lastReading4(CoolingDevice coolingDevice) {
         return readingRepository.findTopByUuidOrderByPitDesc(coolingDevice.getUuid());
+    }
+
+    public List<Reading> fetch(int offset, int limit) {
+        return personData.getPersons().subList(offset, offset + limit);
+    }
+
+    public int count() {
+        return personData.getPersons().size();
+    }
+
+    public List<Person> fetchAll() {
+        return personData.getPersons();
     }
 }
 

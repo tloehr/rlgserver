@@ -3,8 +3,12 @@ package de.flashheart.rlgserver.backend.service;
 
 import de.flashheart.rlgserver.app.misc.HasLogger;
 import de.flashheart.rlgserver.backend.data.entity.CoolingDevice;
+import de.flashheart.rlgserver.backend.data.entity.Reading;
+import de.flashheart.rlgserver.backend.data.pojo.CurrentSituation;
 import de.flashheart.rlgserver.backend.data.repositories.CoolingDeviceRepository;
 import de.flashheart.rlgserver.backend.data.repositories.ReadingRepository;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +16,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,6 +71,18 @@ public class CoolingDeviceService extends CrudService<CoolingDevice> implements 
 
     public List<CoolingDevice> findAll() {
         return coolingDeviceRepository.findAllByOrderByMachine();
+    }
+
+    public List<CurrentSituation> getCurrentSituation() {
+        final ArrayList<CurrentSituation> result = new ArrayList<>();
+
+        findAll().forEach(coolingDevice -> {
+            Reading reading = readingRepository.findTopByUuidOrderByPitDesc(coolingDevice.getUuid()).get();
+            result.add(new CurrentSituation(coolingDevice.getMachine(), reading.getPit(), reading.getTemperature()));
+        });
+
+        return result;
+
     }
 
 //    public static boolean isInRange(BigDecimal temperature, CoolingDevice coolingDevice) {
