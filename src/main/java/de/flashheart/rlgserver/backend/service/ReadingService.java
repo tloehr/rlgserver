@@ -61,16 +61,6 @@ public class ReadingService extends CrudService<Reading> implements HasLogger {
         return readingRepository.findTopByUuidOrderByPitDesc(coolingDevice.getUuid());
     }
 
-    public List<Reading> fetch(int offset, int limit) {
-        return personData.getPersons().subList(offset, offset + limit);
-    }
 
-    public int count() {
-        return personData.getPersons().size();
-    }
-
-    public List<Person> fetchAll() {
-        return personData.getPersons();
-    }
 }
 

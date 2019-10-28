@@ -52,6 +52,9 @@ public class MainView extends AppLayout {
         VerticalLayout leftLayout = new VerticalLayout();
         leftLayout.setHeightFull();
 
+        VerticalLayout rightLayout = new VerticalLayout();
+        rightLayout.setHeightFull();
+
         HorizontalLayout buttonsLayout = new HorizontalLayout();
 
         layout.add(leftLayout);
@@ -62,12 +65,14 @@ public class MainView extends AppLayout {
         leftLayout.add(currentSituationGrid);
         leftLayout.add(buttonsLayout);
 
+
+        /**
         Grid<Reading> readingGrid = new Grid<>(Reading.class);
         CallbackDataProvider<Reading, Void> provider = DataProvider.fromCallbacks(query -> readingService.findAnyMatching(Optional.empty(), new Page, query -> re);
         readingGrid.setDataProvider(provider);
-        
+        rightLayout.add(readingGrid);
 
-        
+         **/
 
 
         // You can initialise any data required for the connected UI components here.
