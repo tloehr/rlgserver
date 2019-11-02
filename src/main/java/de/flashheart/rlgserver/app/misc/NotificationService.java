@@ -21,16 +21,20 @@ public class NotificationService implements HasLogger {
     public static final int DEVICE_NEW_DEVICE = 4;
     public static final String[] SITUATIONEN = new String[]{"zu niedrig", "normal", "zu hoch", "Sensor fehlt", "Sensor neu"};
     public final EmailServiceImpl emailService;
+
+
     @Value("${notification.threshold}")
     private int THRESHOLD;
     @Value("${tcserver.devmode}")
     private boolean DEVMODE;
 
     private final Map<String, ArrayList<String>> watchlist;
+    private final ArrayList<String> notifiedAlready; // enthält die UUID aller Geräte, die bereits benachrichtigt wurden.
 
     public NotificationService(EmailServiceImpl emailService) {
         this.emailService = emailService;
         watchlist = Collections.synchronizedMap(new HashMap<>());
+        notifiedAlready = new ArrayList<>();
     }
 
     private void addEvent(String uuid, int event, String description) {
@@ -38,11 +42,16 @@ public class NotificationService implements HasLogger {
         watchlist.putIfAbsent(uuid, new ArrayList<>());
         if (event == NORMAL) {
             watchlist.get(uuid).clear();
+            notifiedAlready.remove(uuid);
         } else if (event == DEVICE_MISSING) {
-            emailService.sendSimpleMessage("torsten.loehr@gmail.com", "Benachrichtigung", "Device %s is missing");
+            if (!DEVMODE) emailService.sendSimpleMessage("torsten.loehr@gmail.com", "Benachrichtigung", String.format(description, uuid));
         } else {
             watchlist.get(uuid).add(description);
         }
+    }
+
+    public void addMissingDeviceEvent(CoolingDevice coolingDevice) {
+        addEvent(coolingDevice.getUuid(), DEVICE_MISSING, "Device %s is missing");
     }
 
     public void addEvent(CoolingDevice coolingDevice, BigDecimal temperature) {
@@ -63,11 +72,14 @@ public class NotificationService implements HasLogger {
         if (DEVMODE) return;
         final StringBuilder notificationText = new StringBuilder();
         watchlist.forEach((uuid, events) -> {
-            getLogger().debug(String.format("Number of events for device %s: %s", uuid, events.size()));
-            if (events.size() > THRESHOLD) {
-                getLogger().debug("Threshold reached. Notifiying.");
-                events.forEach(message -> notificationText.append(message + " // [" + uuid + "]\n"));
-                events.clear();
+            if (!notifiedAlready.contains(uuid)) { // einmal benachrichtigen reicht
+                getLogger().debug(String.format("Number of events for device %s: %s", uuid, events.size()));
+                if (events.size() > THRESHOLD) {
+                    getLogger().debug("Threshold reached. Notifiying.");
+                    events.forEach(message -> notificationText.append(message + " // [" + uuid + "]\n"));
+                    events.clear();
+                    notifiedAlready.add(uuid);
+                }
             }
         });
         if (notificationText.length() > 0) {

@@ -72,10 +72,9 @@ public class MQTTController implements HasLogger {
                     BigDecimal value = BigDecimal.valueOf(Double.parseDouble(payload[1]));
                     readingService.create(payload[0], value);
                     coolingDeviceService.findByUuid(payload[0]).ifPresent(coolingDevice -> notificationService.addEvent(coolingDevice, value));
+                } else if (command.equalsIgnoreCase("dm")) { // device missing
+                    coolingDeviceService.findByUuid(payload[0]).ifPresent(coolingDevice -> notificationService.addMissingDeviceEvent(coolingDevice));
                 }
-//                else if (command.equalsIgnoreCase("dm")) { // device missing
-//                    coolingDeviceService.findByUuid(payload[0]).ifPresent(coolingDevice -> notificationService.addMissingDeviceEvent(coolingDevice));
-//                }
             } catch (NumberFormatException nfe) {
                 getLogger().warn(nfe.toString());
             } catch (Exception e) {
