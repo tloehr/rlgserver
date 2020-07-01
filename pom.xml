@@ -21,7 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <vaadin.version>14.0.9</vaadin.version>
-        <mysql.connector.version>5.1.47</mysql.connector.version>
+        <mysql.connector.version>8.0.16</mysql.connector.version>
         <javamail.version>1.6.2</javamail.version>
 <!--        <flow.maven.plugin.version>2.0.15</flow.maven.plugin.version>-->
     </properties>
