@@ -1,5 +1,6 @@
 package de.flashheart.rlgserver.app.config;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import de.flashheart.rlgserver.app.misc.HasLogger;
 import de.flashheart.rlgserver.app.misc.NotificationService;
 import de.flashheart.rlgserver.backend.service.CoolingDeviceService;
@@ -16,7 +17,10 @@ import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigDecimal;
+import java.util.Properties;
 
 @Configuration
 public class MQTTController implements HasLogger {
@@ -31,11 +35,11 @@ public class MQTTController implements HasLogger {
     }
 
     @Value("${spring.mqtt.url}")
-       public String mqtturl;
-       @Value("${spring.mqtt.clientid}")
-       public String mqttid;
-       @Value("${spring.mqtt.topic}")
-       public String mqttopic; // dont forget the closing '/'
+    public String mqtturl;
+    @Value("${spring.mqtt.clientid}")
+    public String mqttid;
+    @Value("${spring.mqtt.topic}")
+    public String mqttopic; // dont forget the closing '/'
 
     @Bean
     public MessageChannel mqttInputChannel() {
@@ -44,8 +48,7 @@ public class MQTTController implements HasLogger {
 
     @Bean
     public MessageProducer inbound() {
-        MqttPahoMessageDrivenChannelAdapter adapter =
-                new MqttPahoMessageDrivenChannelAdapter(mqtturl, mqttid, mqttopic + "#");
+        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(mqtturl, mqttid, "#");
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(2);
@@ -58,11 +61,34 @@ public class MQTTController implements HasLogger {
     public MessageHandler handler() {
         return message -> {
             try {
+                getLogger().debug(message.getHeaders().get("mqtt_receivedTopic").toString());
                 getLogger().debug(message.getPayload().toString());
                 getLogger().debug(message.getHeaders().toString());
                 String topic = message.getHeaders().get("mqtt_receivedTopic").toString();
                 String command = StringUtils.substringAfterLast(topic, "/");
                 String[] payload = StringUtils.split(message.getPayload().toString(), ";");
+
+                /**
+                 *
+                 * mosquitto_pub -h mqtt -m "keypart1=status.raid;value=Optimal" -t incoming/from/lvolume@srv00/reading
+                 * mosquitto_pub -h mqtt -m "keypart1=status.raid.num.failed.devices;value=0" -t incoming/from/lvolume@srv00/reading
+                 *
+                 */
+                if (topic.startsWith("incoming/from/")){
+                    String[] elements = topic.split("/");
+                    if (elements.length == 4){
+                        String service = elements[2].split("@")[0];
+                        String host = elements[2].split("@")[1];
+                        String subject = elements[3];
+
+                        Properties pload = get_properties_from(message.getPayload().toString());
+                        
+                        getLogger().debug(pload.toString());
+
+
+
+                    }
+                }
 
                 if (command.equalsIgnoreCase("cd")) { // create device
                     BigDecimal min = BigDecimal.valueOf(Double.parseDouble(payload[2]));
@@ -81,6 +107,12 @@ public class MQTTController implements HasLogger {
                 getLogger().error(e.toString());
             }
         };
+    }
+
+    private Properties get_properties_from(String s) throws IOException {
+        final Properties p = new Properties();
+        p.load(new StringReader(s.replace(";","\n")));
+        return p;
     }
 
 }

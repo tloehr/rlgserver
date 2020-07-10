@@ -7,57 +7,56 @@ import javax.persistence.Version;
 import java.io.Serializable;
 
 @MappedSuperclass
-public class AbstractEntity implements Serializable {
+public abstract class AbstractEntity implements Serializable {
+    @Id
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long getId() {
+        return id;
+    }
 
-	@Id
-	@GeneratedValue
-	private Long id;
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	@Version
-	private int version;
+    @Version
+    public int getVersion() {
+        return version;
+    }
 
-	public boolean isNew() {
-		return id == null;
-	}
+    public void setVersion(int version) {
+        this.version = version;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    @Override
+    public int hashCode() {
+        if (id == null) {
+            return super.hashCode();
+        }
 
-	public int getVersion() {
-		return version;
-	}
+        return 31 + id.hashCode();
+    }
 
-	@Override
-	public int hashCode() {
-		if (id == null) {
-			return super.hashCode();
-		}
+    @Override
+    public boolean equals(Object other) {
+        boolean equal;
 
-		return 31 + id.hashCode();
-	}
+        if (id == null) {
+            // New entities are only equal if the instance if the same
+            equal = super.equals(other);
+        } else if (this == other) {
+            equal = true;
+        } else if (!(other instanceof DefaultEntity)) {
+            equal = false;
+        } else {
+            equal = id.equals(((DefaultEntity) other).id);
+        }
 
-	@Override
-	public boolean equals(Object other) {
-		if (id == null) {
-			// New entities are only equal if the instance if the same
-			return super.equals(other);
-		}
+        return equal;
+    }
 
-		if (this == other) {
-			return true;
-		}
-		if (!(other instanceof AbstractEntity)) {
-			return false;
-		}
-		return id.equals(((AbstractEntity) other).id);
-	}
-
-	@Override
-	public String toString() {
-		return "AbstractEntity{" +
-				"id=" + id +
-				", version=" + version +
-				'}';
-	}
+    @Override
+    public String toString() {
+        return Tools.toString(this, this.getClass());
+    }
 }
