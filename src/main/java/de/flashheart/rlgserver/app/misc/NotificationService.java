@@ -1,11 +1,8 @@
 package de.flashheart.rlgserver.app.misc;
 
-import de.flashheart.rlgserver.backend.data.entity.CoolingDevice;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,23 +47,23 @@ public class NotificationService implements HasLogger {
         }
     }
 
-    public void addMissingDeviceEvent(CoolingDevice coolingDevice) {
-        addEvent(coolingDevice.getUuid(), DEVICE_MISSING, "Device %s is missing");
-    }
-
-    public void addEvent(CoolingDevice coolingDevice, BigDecimal temperature) {
-        int event = NotificationService.NORMAL;
-        String message = "Wert normal für " + coolingDevice.getMachine() + ": " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
-        if (coolingDevice.getMin().compareTo(temperature) > 0) {
-            event = NotificationService.TOO_LOW;
-            message = "Wert zu niedrig für " + coolingDevice.getMachine() + ". Soll > " + coolingDevice.getMin() + "°C  Ist: " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
-        }
-        if (temperature.compareTo(coolingDevice.getMax()) > 0) {
-            event = NotificationService.TOO_HIGH;
-            message = "Wert zu hoch für " + coolingDevice.getMachine() + ". Soll < " + coolingDevice.getMax() + "°C  Ist: " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
-        }
-        addEvent(coolingDevice.getUuid(), event, message);
-    }
+//    public void addMissingDeviceEvent(CoolingDevice coolingDevice) {
+//        addEvent(coolingDevice.getUuid(), DEVICE_MISSING, "Device %s is missing");
+//    }
+//
+//    public void addEvent(CoolingDevice coolingDevice, BigDecimal temperature) {
+//        int event = NotificationService.NORMAL;
+//        String message = "Wert normal für " + coolingDevice.getMachine() + ": " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
+//        if (coolingDevice.getMin().compareTo(temperature) > 0) {
+//            event = NotificationService.TOO_LOW;
+//            message = "Wert zu niedrig für " + coolingDevice.getMachine() + ". Soll > " + coolingDevice.getMin() + "°C  Ist: " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
+//        }
+//        if (temperature.compareTo(coolingDevice.getMax()) > 0) {
+//            event = NotificationService.TOO_HIGH;
+//            message = "Wert zu hoch für " + coolingDevice.getMachine() + ". Soll < " + coolingDevice.getMax() + "°C  Ist: " + temperature.setScale(2, RoundingMode.HALF_UP).toString() + "°C";
+//        }
+//        addEvent(coolingDevice.getUuid(), event, message);
+//    }
 
     public void checkForNotifications() {
         if (DEVMODE) return;

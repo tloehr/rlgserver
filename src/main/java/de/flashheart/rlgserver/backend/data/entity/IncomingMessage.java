@@ -7,9 +7,8 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "incoming_message")
+//@Table(name = "incoming_message")
 public class IncomingMessage extends AbstractEntity {
-
     private String host;
     private String service;
     private LocalDateTime pit;

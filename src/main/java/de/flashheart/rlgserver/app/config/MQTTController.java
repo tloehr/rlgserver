@@ -1,10 +1,9 @@
 package de.flashheart.rlgserver.app.config;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import de.flashheart.rlgserver.app.misc.HasLogger;
 import de.flashheart.rlgserver.app.misc.NotificationService;
-import de.flashheart.rlgserver.backend.service.CoolingDeviceService;
-import de.flashheart.rlgserver.backend.service.ReadingService;
+import de.flashheart.rlgserver.backend.data.entity.IncomingMessage;
+import de.flashheart.rlgserver.backend.service.IncomingMessageService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,19 +18,17 @@ import org.springframework.messaging.MessageHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.Properties;
 
 @Configuration
 public class MQTTController implements HasLogger {
-    private final ReadingService readingService;
-    private final CoolingDeviceService coolingDeviceService;
     private final NotificationService notificationService;
+    private final IncomingMessageService incomingMessageService;
 
-    public MQTTController(ReadingService readingService, CoolingDeviceService coolingDeviceService, NotificationService notificationService) {
-        this.readingService = readingService;
-        this.coolingDeviceService = coolingDeviceService;
+    public MQTTController(NotificationService notificationService, IncomingMessageService incomingMessageService) {
         this.notificationService = notificationService;
+        this.incomingMessageService = incomingMessageService;
     }
 
     @Value("${spring.mqtt.url}")
@@ -73,34 +70,51 @@ public class MQTTController implements HasLogger {
                  * mosquitto_pub -h mqtt -m "keypart1=status.raid;value=Optimal" -t incoming/from/lvolume@srv00/reading
                  * mosquitto_pub -h mqtt -m "keypart1=status.raid.num.failed.devices;value=0" -t incoming/from/lvolume@srv00/reading
                  *
+                 * tc/cr 28-02109245c681;8.80
+                 * incoming/from/lvolume0@srv00/reading keypart1=status.raid;value=Optimal
+                 * incoming/from/lvolume0@srv02/reading keypart1=status.raid;value=Optimal
+                 * incoming/from/lvolume1@srv02/reading keypart1=status.raid;value=Optimal
+                 * incoming/from/md0@srv0001/reading keypart1=status.raid.num.failed.devices;value=0
+                 * tc/cr 28-01143bb438aa;-23.40
+                 *
                  */
-                if (topic.startsWith("incoming/from/")){
+                if (topic.startsWith("incoming/from")) {
                     String[] elements = topic.split("/");
-                    if (elements.length == 4){
+                    if (elements.length == 4) {
                         String service = elements[2].split("@")[0];
                         String host = elements[2].split("@")[1];
                         String subject = elements[3];
 
                         Properties pload = get_properties_from(message.getPayload().toString());
-                        
+
                         getLogger().debug(pload.toString());
 
-
+                        Optional<IncomingMessage> incomingMessage = incomingMessageService.create(host,
+                                service,
+                                subject,
+                                pload.getProperty("reference", ""),
+                                pload.getProperty("keypart1", ""),
+                                pload.getProperty("keypart2", ""),
+                                pload.getProperty("value", "")
+                        );
 
                     }
                 }
 
-                if (command.equalsIgnoreCase("cd")) { // create device
-                    BigDecimal min = BigDecimal.valueOf(Double.parseDouble(payload[2]));
-                    BigDecimal max = BigDecimal.valueOf(Double.parseDouble(payload[3]));
-                    coolingDeviceService.createOrUpdate(payload[0], payload[1], min, max);
-                } else if (command.equalsIgnoreCase("cr")) { // create reading
-                    BigDecimal value = BigDecimal.valueOf(Double.parseDouble(payload[1]));
-                    readingService.create(payload[0], value);
-                    coolingDeviceService.findByUuid(payload[0]).ifPresent(coolingDevice -> notificationService.addEvent(coolingDevice, value));
-                } else if (command.equalsIgnoreCase("dm")) { // device missing
-                    coolingDeviceService.findByUuid(payload[0]).ifPresent(coolingDevice -> notificationService.addMissingDeviceEvent(coolingDevice));
-                }
+             
+
+
+//                if (command.equalsIgnoreCase("cd")) { // create device
+//                    BigDecimal min = BigDecimal.valueOf(Double.parseDouble(payload[2]));
+//                    BigDecimal max = BigDecimal.valueOf(Double.parseDouble(payload[3]));
+//                    coolingDeviceService.createOrUpdate(payload[0], payload[1], min, max);
+//                } else if (command.equalsIgnoreCase("cr")) { // create reading
+//                    BigDecimal value = BigDecimal.valueOf(Double.parseDouble(payload[1]));
+//                    readingService.create(payload[0], value);
+//                    coolingDeviceService.findByUuid(payload[0]).ifPresent(coolingDevice -> notificationService.addEvent(coolingDevice, value));
+//                } else if (command.equalsIgnoreCase("dm")) { // device missing
+//                    coolingDeviceService.findByUuid(payload[0]).ifPresent(coolingDevice -> notificationService.addMissingDeviceEvent(coolingDevice));
+//                }
             } catch (NumberFormatException nfe) {
                 getLogger().warn(nfe.toString());
             } catch (Exception e) {
@@ -111,7 +125,7 @@ public class MQTTController implements HasLogger {
 
     private Properties get_properties_from(String s) throws IOException {
         final Properties p = new Properties();
-        p.load(new StringReader(s.replace(";","\n")));
+        p.load(new StringReader(s.replace(";", "\n")));
         return p;
     }
 

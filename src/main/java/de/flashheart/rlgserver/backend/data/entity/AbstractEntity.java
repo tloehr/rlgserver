@@ -1,13 +1,16 @@
 package de.flashheart.rlgserver.backend.data.entity;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
+import de.flashheart.rlgserver.app.misc.Tools;
+import org.dom4j.tree.DefaultEntity;
+
+import javax.persistence.*;
 import java.io.Serializable;
 
 @MappedSuperclass
 public abstract class AbstractEntity implements Serializable {
+    private Long id;
+    private int version;
+
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +52,7 @@ public abstract class AbstractEntity implements Serializable {
         } else if (!(other instanceof DefaultEntity)) {
             equal = false;
         } else {
-            equal = id.equals(((DefaultEntity) other).id);
+            equal = id.equals(((AbstractEntity) other).id);
         }
 
         return equal;
@@ -57,6 +60,9 @@ public abstract class AbstractEntity implements Serializable {
 
     @Override
     public String toString() {
-        return Tools.toString(this, this.getClass());
+        return "AbstractEntity{" +
+                "id=" + id +
+                ", version=" + version +
+                '}';
     }
 }
