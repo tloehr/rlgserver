@@ -4,7 +4,6 @@ import de.flashheart.rlgserver.app.misc.HasLogger;
 import de.flashheart.rlgserver.app.misc.NotificationService;
 import de.flashheart.rlgserver.backend.data.entity.IncomingMessage;
 import de.flashheart.rlgserver.backend.service.IncomingMessageService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +17,8 @@ import org.springframework.messaging.MessageHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -25,6 +26,7 @@ import java.util.Properties;
 public class MQTTController implements HasLogger {
     private final NotificationService notificationService;
     private final IncomingMessageService incomingMessageService;
+
 
     public MQTTController(NotificationService notificationService, IncomingMessageService incomingMessageService) {
         this.notificationService = notificationService;
@@ -45,7 +47,7 @@ public class MQTTController implements HasLogger {
 
     @Bean
     public MessageProducer inbound() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(mqtturl, mqttid, "#");
+        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(mqtturl, mqttid, mqttopic + "#");
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(2);
@@ -62,47 +64,38 @@ public class MQTTController implements HasLogger {
                 getLogger().debug(message.getPayload().toString());
                 getLogger().debug(message.getHeaders().toString());
                 String topic = message.getHeaders().get("mqtt_receivedTopic").toString();
-                String command = StringUtils.substringAfterLast(topic, "/");
-                String[] payload = StringUtils.split(message.getPayload().toString(), ";");
+//                String command = StringUtils.substringAfterLast(topic, "/");
+//                String[] payload = StringUtils.split(message.getPayload().toString(), ";");
 
                 /**
                  *
                  * mosquitto_pub -h mqtt -m "keypart1=status.raid;value=Optimal" -t incoming/from/lvolume@srv00/reading
                  * mosquitto_pub -h mqtt -m "keypart1=status.raid.num.failed.devices;value=0" -t incoming/from/lvolume@srv00/reading
                  *
-                 * tc/cr 28-02109245c681;8.80
-                 * incoming/from/lvolume0@srv00/reading keypart1=status.raid;value=Optimal
-                 * incoming/from/lvolume0@srv02/reading keypart1=status.raid;value=Optimal
-                 * incoming/from/lvolume1@srv02/reading keypart1=status.raid;value=Optimal
-                 * incoming/from/md0@srv0001/reading keypart1=status.raid.num.failed.devices;value=0
-                 * tc/cr 28-01143bb438aa;-23.40
+                 * im/ service=28-01143bb438aa;host=iot01;value=-23.80
+                 * im/ service=28-02159245cb05;host=iot01;value=-24.40
+                 * im/ service=28-01145e9e64d6;host=iot01;value=1.50
+                 * im/ service=28-01143b9d24aa;host=iot01;value=-23.80
+                 * im/ service=28-01143b87deaa;host=iot01;value=-20.80
+                 *
+                 * im host=srv02;service=db-kueche-prod;pit=2020-07-13T17:06:02+02:00;subject=backup;key1=crc.table;key2=vorrat;value=3766279728;reference=
                  *
                  */
-                if (topic.startsWith("incoming/from")) {
-                    String[] elements = topic.split("/");
-                    if (elements.length == 4) {
-                        String service = elements[2].split("@")[0];
-                        String host = elements[2].split("@")[1];
-                        String subject = elements[3];
 
-                        Properties pload = get_properties_from(message.getPayload().toString());
+                Properties pload = get_properties_from(message.getPayload().toString());
 
-                        getLogger().debug(pload.toString());
+                getLogger().debug(pload.toString());
 
-                        Optional<IncomingMessage> incomingMessage = incomingMessageService.create(host,
-                                service,
-                                subject,
-                                pload.getProperty("reference", ""),
-                                pload.getProperty("keypart1", ""),
-                                pload.getProperty("keypart2", ""),
-                                pload.getProperty("value", "")
-                        );
-
-                    }
-                }
-
-             
-
+                Optional<IncomingMessage> incomingMessage = incomingMessageService.create(
+                        pload.getProperty("host", "unknown"),
+                        pload.getProperty("service", "unknown"),
+                        pload.getProperty("pit", null),
+                        pload.getProperty("subject", "error"),
+                        pload.getProperty("reference", null),
+                        pload.getProperty("key1", "error"),
+                        pload.getProperty("key2", null),
+                        pload.getProperty("value", "error")
+                );
 
 //                if (command.equalsIgnoreCase("cd")) { // create device
 //                    BigDecimal min = BigDecimal.valueOf(Double.parseDouble(payload[2]));

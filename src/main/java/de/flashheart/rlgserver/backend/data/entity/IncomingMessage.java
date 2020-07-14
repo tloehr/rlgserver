@@ -3,7 +3,6 @@ package de.flashheart.rlgserver.backend.data.entity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,8 +13,8 @@ public class IncomingMessage extends AbstractEntity {
     private LocalDateTime pit;
     private String subject;
     private String reference;
-    private String key_part1;
-    private String key_part2;
+    private String key1;
+    private String key2;
     private String value;
 
     @Basic
@@ -39,7 +38,7 @@ public class IncomingMessage extends AbstractEntity {
     }
 
     @Basic
-    @Column(nullable = false, length = 200)
+    @Column(nullable = true, length = 200)
     public String getReference() {
         return reference;
     }
@@ -71,23 +70,23 @@ public class IncomingMessage extends AbstractEntity {
 
 
     @Basic
-    @Column(nullable = true, length = 200)
-    public String getKey_part1() {
-        return key_part1;
+    @Column(nullable = false, length = 200)
+    public String getKey1() {
+        return key1;
     }
 
-    public void setKey_part1(String key_part1) {
-        this.key_part1 = key_part1;
+    public void setKey1(String key1) {
+        this.key1 = key1;
     }
 
     @Basic
     @Column(nullable = true, length = 200)
-    public String getKey_part2() {
-        return key_part2;
+    public String getKey2() {
+        return key2;
     }
 
-    public void setKey_part2(String key_part2) {
-        this.key_part2 = key_part2;
+    public void setKey2(String key2) {
+        this.key2 = key2;
     }
 
     @Basic
@@ -100,5 +99,18 @@ public class IncomingMessage extends AbstractEntity {
         this.value = value;
     }
 
+    @Override
+    public String toString() {
+        return "IncomingMessage{" +
+                "host='" + host + '\'' +
+                ", service='" + service + '\'' +
+                ", pit=" + pit +
+                ", subject='" + subject + '\'' +
+                ", reference='" + reference + '\'' +
+                ", key1='" + key1 + '\'' +
+                ", key2='" + key2 + '\'' +
+                ", value='" + value + '\'' +
+                '}' + super.toString();
+    }
 
 }
